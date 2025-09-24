@@ -1,0 +1,28 @@
+{
+  "name": "net-zero-campus",
+  "version": "1.0.0",
+  "description": "Comprehensive web application for campus sustainability tracking with energy efficiency monitoring, carbon neutrality goals, gamification, and AI-powered recommendations",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run server:dev\" \"npm run client:dev\"",
+    "server:dev": "cd server && npm run dev",
+    "client:dev": "cd client && npm start",
+    "build": "cd client && npm run build",
+    "server:prod": "cd server && npm start",
+    "install:all": "npm install && cd server && npm install && cd ../client && npm install",
+    "seed": "cd server && node scripts/seed.js"
+  },
+  "keywords": [
+    "sustainability",
+    "net-zero",
+    "campus",
+    "energy-monitoring",
+    "carbon-tracking",
+    "gamification"
+  ],
+  "author": "Net Zero Campus Team",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  }
+}
