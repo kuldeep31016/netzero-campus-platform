@@ -1,37 +1,117 @@
-// Temporary Firebase service placeholder
-// This is a simplified mock version until Firebase is properly configured
+import { initializeApp } from 'firebase/app';
+import { 
+  getAuth, 
+  createUserWithEmailAndPassword, 
+  signInWithEmailAndPassword, 
+  signOut,
+  User as FirebaseUser 
+} from 'firebase/auth';
+import { 
+  getFirestore, 
+  doc, 
+  setDoc, 
+  getDoc 
+} from 'firebase/firestore';
 
-export interface AuthContextType {
-  currentUser: { displayName: string; email: string } | null;
-  login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, displayName: string) => Promise<void>;
-  logout: () => Promise<void>;
-  loading: boolean;
+// Firebase configuration
+const firebaseConfig = {
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_FIREBASE_APP_ID
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+export const auth = getAuth(app);
+export const db = getFirestore(app);
+
+// Types
+export type UserRole = 'student' | 'faculty' | 'admin';
+
+export interface UserProfile {
+  uid: string;
+  email: string;
+  role: UserRole;
+  fullName: string;
+  department: string;
+  studentId?: string;
+  employeeId?: string;
+  createdAt: Date;
 }
 
-// Mock authentication context
-export const useAuth = (): AuthContextType => {
-  return {
-    currentUser: { displayName: 'Demo User', email: 'demo@example.com' },
-    login: async (email: string, password: string) => {
-      console.log('Login attempt:', email);
-      // Mock login logic
-    },
-    register: async (email: string, password: string, displayName: string) => {
-      console.log('Register attempt:', email, displayName);
-      // Mock register logic
-    },
-    logout: async () => {
-      console.log('Logout');
-      // Mock logout logic
-    },
-    loading: false
-  };
+export interface RegisterData {
+  email: string;
+  password: string;
+  fullName: string;
+  role: UserRole;
+  department: string;
+  studentId?: string;
+  employeeId?: string;
+}
+
+// Authentication functions
+export const registerUser = async (userData: RegisterData): Promise<UserProfile> => {
+  const { email, password, ...profileData } = userData;
+  
+  try {
+    // Create user with email and password
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+
+    // Create user profile
+    const userProfile: UserProfile = {
+      uid: user.uid,
+      email: user.email!,
+      ...profileData,
+      createdAt: new Date()
+    };
+
+    // Save to Firestore
+    await setDoc(doc(db, 'users', user.uid), userProfile);
+
+    return userProfile;
+  } catch (error) {
+    throw error;
+  }
 };
 
-// Mock AuthProvider component
-export const AuthProvider = ({ children }: { children: any }) => {
-  return children;
+export const loginUser = async (email: string, password: string): Promise<UserProfile> => {
+  try {
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+    
+    // Get user profile from Firestore
+    const userDoc = await getDoc(doc(db, 'users', user.uid));
+    if (!userDoc.exists()) {
+      throw new Error('User profile not found');
+    }
+    
+    return userDoc.data() as UserProfile;
+  } catch (error) {
+    throw error;
+  }
 };
 
-export default useAuth;
+export const logoutUser = async (): Promise<void> => {
+  try {
+    await signOut(auth);
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getCurrentUserProfile = async (user: FirebaseUser): Promise<UserProfile | null> => {
+  try {
+    const userDoc = await getDoc(doc(db, 'users', user.uid));
+    if (userDoc.exists()) {
+      return userDoc.data() as UserProfile;
+    }
+    return null;
+  } catch (error) {
+    console.error('Error getting user profile:', error);
+    return null;
+  }
+};

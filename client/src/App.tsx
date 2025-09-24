@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './services/firebase';
+import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
 import './styles/globals.css';
@@ -24,7 +24,7 @@ function App() {
             <Routes>
               {/* Public Routes */}
               <Route path="/login" element={<Landing />} />
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/" element={<Landing />} />
               
               {/* Protected Routes */}
               <Route path="/dashboard" element={

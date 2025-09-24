@@ -1,13 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import HeroSection from '../components/landing/HeroSection';
+import AuthModal from '../components/auth/AuthModal';
+import { UserRole } from '../services/firebase';
 
 const Landing: React.FC = () => {
   const navigate = useNavigate();
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [selectedRole, setSelectedRole] = useState<UserRole>('student');
 
   const handlePortalSelect = (portal: 'student' | 'faculty' | 'admin') => {
-    // Navigate to role-specific dashboard with mock authentication
-    navigate(`/dashboard?role=${portal}`);
+    setSelectedRole(portal as UserRole);
+    setAuthModalOpen(true);
   };
 
   return (
@@ -188,6 +192,14 @@ const Landing: React.FC = () => {
           </div>
         </div>
       </footer>
+
+      {/* Authentication Modal */}
+      <AuthModal
+        isOpen={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
+        defaultRole={selectedRole}
+        hideRoleSelection={true}
+      />
     </div>
   );
 };

@@ -1,16 +1,14 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-// TODO: Re-enable when Firebase is properly configured
-// import { useAuth } from '../services/firebase';
+import { useAuth } from '../contexts/AuthContext';
+import { logoutUser } from '../services/firebase';
 
 interface LayoutProps {
   children: React.ReactNode;
 }
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
-  // TODO: Replace with actual auth context
-  // const { currentUser, logout } = useAuth();
-  const currentUser = { displayName: 'Demo User', email: 'demo@example.com' };
+  const { user, userProfile } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -32,8 +30,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   const handleLogout = async () => {
     try {
-      // TODO: Replace with actual logout logic
-      console.log('Logout');
+      await logoutUser();
       navigate('/login');
     } catch (error) {
       console.error('Logout error:', error);
@@ -73,7 +70,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           
           {/* Admin section - show only for admin users */}
           {/* TODO: Replace with proper role checking once Firebase is configured */}
-          {currentUser?.email?.includes('admin') && (
+          {userProfile?.role === 'admin' && (
             <>
               <div className="border-t border-gray-200 dark:border-gray-600 my-4"></div>
               {adminNavigation.map((item) => (
@@ -156,10 +153,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <div className="flex items-center space-x-3">
                   <div className="text-sm text-right">
                     <p className="text-gray-900 dark:text-gray-100 font-medium">
-                      {currentUser?.displayName || 'User'}
+                      {userProfile?.fullName || 'User'}
                     </p>
                     <p className="text-gray-500 dark:text-gray-400 text-xs">
-                      {currentUser?.email}
+                      {userProfile?.email}
                     </p>
                   </div>
                   <button
