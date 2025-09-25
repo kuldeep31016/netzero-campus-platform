@@ -2,8 +2,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import {
   BarChart,
   Bar,
-  LineChart,
-  Line,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -15,11 +13,9 @@ import {
   Cell
 } from 'recharts';
 import { useAuth } from '../contexts/AuthContext';
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
 
-// Define the energy data structure
-interface EnergyRecord {
+// Define the water data structure
+interface WaterRecord {
   id: string;
   userId: string;
   userName: string;
@@ -28,9 +24,9 @@ interface EnergyRecord {
   department: string;
   building: string;
   date: string;
-  electricity: number;
-  renewable: number;
-  co2: number;
+  usageLiters: number;
+  recycledLiters: number;
+  efficiency: number;
   cost: number;
   status: 'pending' | 'approved' | 'rejected';
 }
@@ -38,25 +34,25 @@ interface EnergyRecord {
 // Define department consumption data structure
 interface DepartmentConsumption {
   name: string;
-  totalConsumption: number;
-  renewable: number;
-  co2: number;
+  totalUsage: number;
+  recycled: number;
+  efficiency: number;
 }
 
-const Admin: React.FC = () => {
+const AdminWater: React.FC = () => {
   const { userProfile } = useAuth();
-  const [energyRecords, setEnergyRecords] = useState<EnergyRecord[]>([]);
-  const [filteredRecords, setFilteredRecords] = useState<EnergyRecord[]>([]);
+  const [waterRecords, setWaterRecords] = useState<WaterRecord[]>([]);
+  const [filteredRecords, setFilteredRecords] = useState<WaterRecord[]>([]);
   const [departmentData, setDepartmentData] = useState<DepartmentConsumption[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
-  const [selectedRecord, setSelectedRecord] = useState<EnergyRecord | null>(null);
+  const [selectedRecord, setSelectedRecord] = useState<WaterRecord | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editForm, setEditForm] = useState({
-    electricity: 0,
-    renewable: 0,
-    co2: 0,
+    usageLiters: 0,
+    recycledLiters: 0,
+    efficiency: 0,
     status: 'pending' as 'pending' | 'approved' | 'rejected'
   });
 
@@ -77,8 +73,8 @@ const Admin: React.FC = () => {
 
   const [departmentFilter, setDepartmentFilter] = useState('All Departments');
 
-  // Generate mock energy data
-  const generateMockData = useCallback((): EnergyRecord[] => {
+  // Generate mock water data
+  const generateMockData = useCallback((): WaterRecord[] => {
     const users: { id: string; name: string; email: string; role: 'student' | 'faculty' | 'admin'; department: string }[] = [
       { id: '1', name: 'John Student', email: 'john@student.edu', role: 'student', department: 'Computer Science' },
       { id: '2', name: 'Jane Faculty', email: 'jane@faculty.edu', role: 'faculty', department: 'Electrical Engineering' },
@@ -93,19 +89,19 @@ const Admin: React.FC = () => {
     ];
 
     const buildings = [
-      'Main Building',
-      'Engineering Block',
-      'Science Block',
-      'Library',
+      'Hostel Block A',
+      'Hostel Block B',
+      'Hostel Block C',
       'Cafeteria',
-      'Sports Complex',
-      'Dormitory A',
-      'Dormitory B',
+      'Labs',
+      'Library',
       'Administration Building',
-      'Research Center'
+      'Research Center',
+      'Sports Complex',
+      'Main Building'
     ];
 
-    const records: EnergyRecord[] = [];
+    const records: WaterRecord[] = [];
     const today = new Date();
 
     // Generate records for the past 30 days for multiple users
@@ -114,6 +110,10 @@ const Admin: React.FC = () => {
       const building = buildings[Math.floor(Math.random() * buildings.length)];
       const date = new Date(today);
       date.setDate(date.getDate() - Math.floor(Math.random() * 30));
+      
+      const usageLiters = 1000 + Math.random() * 2000;
+      const recycledLiters = usageLiters * (0.1 + Math.random() * 0.4);
+      const efficiency = (recycledLiters / usageLiters) * 100;
       
       records.push({
         id: `record-${i + 1}`,
@@ -124,10 +124,10 @@ const Admin: React.FC = () => {
         department: user.department,
         building,
         date: date.toISOString().split('T')[0],
-        electricity: 300 + Math.random() * 1200,
-        renewable: 50 + Math.random() * 500,
-        co2: 100 + Math.random() * 400,
-        cost: (300 + Math.random() * 1200) * 0.12,
+        usageLiters: Math.max(0, usageLiters),
+        recycledLiters: Math.max(0, recycledLiters),
+        efficiency: Math.max(0, Math.min(100, efficiency)),
+        cost: usageLiters * 0.005,
         status: ['pending', 'approved', 'rejected'][Math.floor(Math.random() * 3)] as 'pending' | 'approved' | 'rejected'
       });
     }
@@ -136,22 +136,26 @@ const Admin: React.FC = () => {
   }, []);
 
   // Generate department consumption data
-  const generateDepartmentData = useCallback((records: EnergyRecord[]): DepartmentConsumption[] => {
+  const generateDepartmentData = useCallback((records: WaterRecord[]): DepartmentConsumption[] => {
     const departmentMap: Record<string, DepartmentConsumption> = {};
     
     records.forEach(record => {
       if (!departmentMap[record.department]) {
         departmentMap[record.department] = {
           name: record.department,
-          totalConsumption: 0,
-          renewable: 0,
-          co2: 0
+          totalUsage: 0,
+          recycled: 0,
+          efficiency: 0
         };
       }
       
-      departmentMap[record.department].totalConsumption += record.electricity;
-      departmentMap[record.department].renewable += record.renewable;
-      departmentMap[record.department].co2 += record.co2;
+      departmentMap[record.department].totalUsage += record.usageLiters;
+      departmentMap[record.department].recycled += record.recycledLiters;
+      // Recalculate average efficiency
+      departmentMap[record.department].efficiency = 
+        departmentMap[record.department].totalUsage > 0 
+          ? (departmentMap[record.department].recycled / departmentMap[record.department].totalUsage) * 100 
+          : 0;
     });
     
     return Object.values(departmentMap);
@@ -165,7 +169,7 @@ const Admin: React.FC = () => {
         await new Promise(resolve => setTimeout(resolve, 1000));
         
         const mockData = generateMockData();
-        setEnergyRecords(mockData);
+        setWaterRecords(mockData);
         setFilteredRecords(mockData);
         setDepartmentData(generateDepartmentData(mockData));
       } catch (error) {
@@ -180,7 +184,7 @@ const Admin: React.FC = () => {
 
   // Filter records based on search term, status, and department
   useEffect(() => {
-    let result = [...energyRecords];
+    let result = [...waterRecords];
     
     // Apply search filter
     if (searchTerm) {
@@ -204,11 +208,11 @@ const Admin: React.FC = () => {
     }
     
     setFilteredRecords(result);
-  }, [searchTerm, statusFilter, departmentFilter, energyRecords]);
+  }, [searchTerm, statusFilter, departmentFilter, waterRecords]);
 
   // Handle record approval
   const handleApprove = (id: string) => {
-    setEnergyRecords(prev => 
+    setWaterRecords(prev => 
       prev.map(record => 
         record.id === id ? { ...record, status: 'approved' } : record
       )
@@ -223,7 +227,7 @@ const Admin: React.FC = () => {
 
   // Handle record rejection
   const handleReject = (id: string) => {
-    setEnergyRecords(prev => 
+    setWaterRecords(prev => 
       prev.map(record => 
         record.id === id ? { ...record, status: 'rejected' } : record
       )
@@ -238,17 +242,17 @@ const Admin: React.FC = () => {
 
   // Handle record deletion
   const handleDelete = (id: string) => {
-    setEnergyRecords(prev => prev.filter(record => record.id !== id));
+    setWaterRecords(prev => prev.filter(record => record.id !== id));
     setFilteredRecords(prev => prev.filter(record => record.id !== id));
   };
 
   // Open edit modal
-  const openEditModal = (record: EnergyRecord) => {
+  const openEditModal = (record: WaterRecord) => {
     setSelectedRecord(record);
     setEditForm({
-      electricity: record.electricity,
-      renewable: record.renewable,
-      co2: record.co2,
+      usageLiters: record.usageLiters,
+      recycledLiters: record.recycledLiters,
+      efficiency: record.efficiency,
       status: record.status
     });
     setShowEditModal(true);
@@ -259,19 +263,19 @@ const Admin: React.FC = () => {
     e.preventDefault();
     
     if (selectedRecord) {
-      const updatedRecords = energyRecords.map(record => 
+      const updatedRecords = waterRecords.map(record => 
         record.id === selectedRecord.id 
           ? { 
               ...record, 
-              electricity: editForm.electricity,
-              renewable: editForm.renewable,
-              co2: editForm.co2,
+              usageLiters: editForm.usageLiters,
+              recycledLiters: editForm.recycledLiters,
+              efficiency: editForm.efficiency,
               status: editForm.status
             } 
           : record
       );
       
-      setEnergyRecords(updatedRecords);
+      setWaterRecords(updatedRecords);
       setFilteredRecords(updatedRecords);
       setShowEditModal(false);
       setSelectedRecord(null);
@@ -282,7 +286,7 @@ const Admin: React.FC = () => {
   const exportToCSV = () => {
     const headers = [
       'ID', 'User Name', 'User Email', 'Role', 'Department', 'Building', 
-      'Date', 'Electricity (kWh)', 'Renewable (kWh)', 'CO2 (kg)', 'Cost ($)', 'Status'
+      'Date', 'Usage (Liters)', 'Recycled (Liters)', 'Efficiency (%)', 'Cost ($)', 'Status'
     ];
     
     const csvContent = [
@@ -295,9 +299,9 @@ const Admin: React.FC = () => {
         record.department,
         record.building,
         record.date,
-        record.electricity.toFixed(2),
-        record.renewable.toFixed(2),
-        record.co2.toFixed(2),
+        record.usageLiters.toFixed(2),
+        record.recycledLiters.toFixed(2),
+        record.efficiency.toFixed(2),
         record.cost.toFixed(2),
         record.status
       ].map(field => `"${field}"`).join(','))
@@ -307,85 +311,16 @@ const Admin: React.FC = () => {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.setAttribute('href', url);
-    link.setAttribute('download', 'energy_records.csv');
+    link.setAttribute('download', 'water_records.csv');
     link.style.visibility = 'hidden';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
 
-  // Export data as PDF
+  // Export data as PDF (simplified implementation)
   const exportToPDF = () => {
-    const doc = new jsPDF();
-    
-    // Add title
-    doc.setFontSize(18);
-    doc.text('Energy Consumption Report', 14, 20);
-    
-    // Add subtitle with date
-    doc.setFontSize(12);
-    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 30);
-    
-    // Add summary statistics
-    doc.setFontSize(14);
-    doc.text('Summary Statistics', 14, 45);
-    
-    doc.setFontSize(11);
-    doc.text(`Total Records: ${energyRecords.length}`, 14, 55);
-    doc.text(`Pending Approval: ${energyRecords.filter(r => r.status === 'pending').length}`, 14, 62);
-    doc.text(`Total Consumption: ${energyRecords.reduce((sum, record) => sum + record.electricity, 0).toFixed(0)} kWh`, 14, 69);
-    doc.text(`Departments: ${departmentData.length}`, 14, 76);
-    
-    // Add department consumption table
-    autoTable(doc, {
-      startY: 85,
-      head: [['Department', 'Total Consumption (kWh)', 'Renewable (kWh)', 'CO₂ (kg)']],
-      body: departmentData.map(dept => [
-        dept.name,
-        dept.totalConsumption.toFixed(2),
-        dept.renewable.toFixed(2),
-        dept.co2.toFixed(2)
-      ]),
-      theme: 'grid',
-      headStyles: { fillColor: [59, 130, 246] }, // Blue color
-      styles: { fontSize: 8 }
-    });
-    
-    // Add energy records table
-    const finalY = (doc as any).lastAutoTable.finalY || 100;
-    
-    autoTable(doc, {
-      startY: finalY + 10,
-      head: [
-        ['User', 'Department', 'Building', 'Date', 'Electricity (kWh)', 'Renewable (kWh)', 'CO₂ (kg)', 'Status']
-      ],
-      body: filteredRecords.map(record => [
-        record.userName,
-        record.department,
-        record.building,
-        record.date,
-        record.electricity.toFixed(2),
-        record.renewable.toFixed(2),
-        record.co2.toFixed(2),
-        record.status
-      ]),
-      theme: 'grid',
-      headStyles: { fillColor: [16, 185, 129] }, // Green color
-      styles: { fontSize: 8 },
-      columnStyles: {
-        0: { cellWidth: 25 },
-        1: { cellWidth: 25 },
-        2: { cellWidth: 25 },
-        3: { cellWidth: 20 },
-        4: { cellWidth: 25 },
-        5: { cellWidth: 25 },
-        6: { cellWidth: 20 },
-        7: { cellWidth: 20 }
-      }
-    });
-    
-    // Save the PDF
-    doc.save('energy_records_report.pdf');
+    alert('PDF export functionality would be implemented here. In a real application, this would generate a PDF report of the water data.');
   };
 
   // Status badge component
@@ -415,7 +350,7 @@ const Admin: React.FC = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
       </div>
     );
   }
@@ -438,10 +373,10 @@ const Admin: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-            Energy Dashboard
+            Water Dashboard
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1">
-            Manage energy records and monitor consumption across departments
+            Manage water records and monitor consumption across departments
           </p>
         </div>
         
@@ -467,13 +402,13 @@ const Admin: React.FC = () => {
           <div className="flex items-center">
             <div className="rounded-full bg-blue-100 p-3">
               <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 15l-7-7-7 7" />
               </svg>
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Total Records</p>
               <p className="text-2xl font-semibold text-gray-900">
-                {energyRecords.length}
+                {waterRecords.length}
               </p>
             </div>
           </div>
@@ -483,13 +418,13 @@ const Admin: React.FC = () => {
           <div className="flex items-center">
             <div className="rounded-full bg-green-100 p-3">
               <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Pending Approval</p>
               <p className="text-2xl font-semibold text-gray-900">
-                {energyRecords.filter(r => r.status === 'pending').length}
+                {waterRecords.filter(r => r.status === 'pending').length}
               </p>
             </div>
           </div>
@@ -497,15 +432,15 @@ const Admin: React.FC = () => {
 
         <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
           <div className="flex items-center">
-            <div className="rounded-full bg-yellow-100 p-3">
-              <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <div className="rounded-full bg-cyan-100 p-3">
+              <svg className="w-6 h-6 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4 4 0 003 15z" />
               </svg>
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Total Consumption</p>
+              <p className="text-sm font-medium text-gray-600">Total Usage</p>
               <p className="text-2xl font-semibold text-gray-900">
-                {energyRecords.reduce((sum, record) => sum + record.electricity, 0).toFixed(0)} <span className="text-sm">kWh</span>
+                {waterRecords.reduce((sum, record) => sum + record.usageLiters, 0).toFixed(0)} <span className="text-sm">liters</span>
               </p>
             </div>
           </div>
@@ -533,7 +468,7 @@ const Admin: React.FC = () => {
         {/* Department Consumption Chart */}
         <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-            Energy Consumption by Department
+            Water Consumption by Department
           </h3>
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
@@ -549,14 +484,14 @@ const Admin: React.FC = () => {
                   height={60}
                   tick={{ fontSize: 12 }}
                 />
-                <YAxis tickFormatter={(value) => `${value} kWh`} />
+                <YAxis tickFormatter={(value) => `${value} L`} />
                 <Tooltip 
-                  formatter={(value) => [`${value} kWh`, 'Consumption']}
+                  formatter={(value) => [`${value} liters`, 'Consumption']}
                   labelFormatter={(label) => `Department: ${label}`}
                 />
                 <Legend />
-                <Bar dataKey="totalConsumption" name="Total Consumption" fill="#3b82f6" />
-                <Bar dataKey="renewable" name="Renewable Energy" fill="#10b981" />
+                <Bar dataKey="totalUsage" name="Total Usage" fill="#3b82f6" />
+                <Bar dataKey="recycled" name="Recycled Water" fill="#06b6d4" />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -565,7 +500,7 @@ const Admin: React.FC = () => {
         {/* Department Distribution Chart */}
         <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-            Department Energy Distribution
+            Department Water Distribution
           </h3>
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
@@ -577,7 +512,7 @@ const Admin: React.FC = () => {
                   labelLine={true}
                   outerRadius={80}
                   fill="#8884d8"
-                  dataKey="totalConsumption"
+                  dataKey="totalUsage"
                   nameKey="name"
                   label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
                 >
@@ -585,7 +520,7 @@ const Admin: React.FC = () => {
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip formatter={(value) => [`${value} kWh`, 'Consumption']} />
+                <Tooltip formatter={(value) => [`${value} liters`, 'Consumption']} />
                 <Legend />
               </PieChart>
             </ResponsiveContainer>
@@ -603,7 +538,7 @@ const Admin: React.FC = () => {
               placeholder="Search by name, email, department..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           
@@ -612,7 +547,7 @@ const Admin: React.FC = () => {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="all">All Statuses</option>
               <option value="pending">Pending</option>
@@ -626,7 +561,7 @@ const Admin: React.FC = () => {
             <select
               value={departmentFilter}
               onChange={(e) => setDepartmentFilter(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               {departments.map(dept => (
                 <option key={dept} value={dept}>{dept}</option>
@@ -649,11 +584,11 @@ const Admin: React.FC = () => {
         </div>
       </div>
 
-      {/* Energy Records Table */}
+      {/* Water Records Table */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-200">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-            Energy Records ({filteredRecords.length})
+            Water Records ({filteredRecords.length})
           </h3>
         </div>
         
@@ -674,13 +609,13 @@ const Admin: React.FC = () => {
                   Date
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Electricity (kWh)
+                  Usage (L)
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Renewable (kWh)
+                  Recycled (L)
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  CO₂ (kg)
+                  Efficiency (%)
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Status
@@ -694,7 +629,7 @@ const Admin: React.FC = () => {
               {filteredRecords.length === 0 ? (
                 <tr>
                   <td colSpan={9} className="px-6 py-4 text-center text-sm text-gray-500">
-                    No energy records found
+                    No water records found
                   </td>
                 </tr>
               ) : (
@@ -715,13 +650,13 @@ const Admin: React.FC = () => {
                       {record.date}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {record.electricity.toFixed(2)}
+                      {record.usageLiters.toFixed(0)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {record.renewable.toFixed(2)}
+                      {record.recycledLiters.toFixed(0)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {record.co2.toFixed(2)}
+                      {record.efficiency.toFixed(1)}%
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <StatusBadge status={record.status} />
@@ -771,7 +706,7 @@ const Admin: React.FC = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
             <div className="px-6 py-4 border-b border-gray-200">
-              <h3 className="text-lg font-medium text-gray-900">Edit Energy Record</h3>
+              <h3 className="text-lg font-medium text-gray-900">Edit Water Record</h3>
             </div>
             <form onSubmit={handleEditSubmit}>
               <div className="px-6 py-4 space-y-4">
@@ -792,42 +727,44 @@ const Admin: React.FC = () => {
                   <p className="mt-1 text-sm text-gray-900">{selectedRecord.date}</p>
                 </div>
                 <div>
-                  <label htmlFor="electricity" className="block text-sm font-medium text-gray-700">
-                    Electricity (kWh)
+                  <label htmlFor="usageLiters" className="block text-sm font-medium text-gray-700">
+                    Usage (Liters)
                   </label>
                   <input
                     type="number"
-                    id="electricity"
-                    value={editForm.electricity}
-                    onChange={(e) => setEditForm({...editForm, electricity: parseFloat(e.target.value) || 0})}
+                    id="usageLiters"
+                    value={editForm.usageLiters}
+                    onChange={(e) => setEditForm({...editForm, usageLiters: parseFloat(e.target.value) || 0})}
                     className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-                    step="0.01"
+                    step="1"
                   />
                 </div>
                 <div>
-                  <label htmlFor="renewable" className="block text-sm font-medium text-gray-700">
-                    Renewable (kWh)
+                  <label htmlFor="recycledLiters" className="block text-sm font-medium text-gray-700">
+                    Recycled (Liters)
                   </label>
                   <input
                     type="number"
-                    id="renewable"
-                    value={editForm.renewable}
-                    onChange={(e) => setEditForm({...editForm, renewable: parseFloat(e.target.value) || 0})}
+                    id="recycledLiters"
+                    value={editForm.recycledLiters}
+                    onChange={(e) => setEditForm({...editForm, recycledLiters: parseFloat(e.target.value) || 0})}
                     className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-                    step="0.01"
+                    step="1"
                   />
                 </div>
                 <div>
-                  <label htmlFor="co2" className="block text-sm font-medium text-gray-700">
-                    CO₂ (kg)
+                  <label htmlFor="efficiency" className="block text-sm font-medium text-gray-700">
+                    Efficiency (%)
                   </label>
                   <input
                     type="number"
-                    id="co2"
-                    value={editForm.co2}
-                    onChange={(e) => setEditForm({...editForm, co2: parseFloat(e.target.value) || 0})}
+                    id="efficiency"
+                    value={editForm.efficiency}
+                    onChange={(e) => setEditForm({...editForm, efficiency: parseFloat(e.target.value) || 0})}
                     className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-                    step="0.01"
+                    step="0.1"
+                    min="0"
+                    max="100"
                   />
                 </div>
                 <div>
@@ -856,7 +793,7 @@ const Admin: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="btn btn-primary bg-green-600 text-white hover:bg-green-700 px-4 py-2 rounded-md text-sm font-medium"
+                  className="btn btn-primary bg-blue-600 text-white hover:bg-blue-700 px-4 py-2 rounded-md text-sm font-medium"
                 >
                   Save Changes
                 </button>
@@ -869,4 +806,4 @@ const Admin: React.FC = () => {
   );
 };
 
-export default Admin;
+export default AdminWater;

@@ -11,6 +11,8 @@ import {
   Legend,
   ResponsiveContainer
 } from 'recharts';
+import { useAuth } from '../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 // Define the data structure according to requirements
 interface WaterData {
@@ -62,6 +64,8 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 const Water: React.FC = () => {
+  const { userProfile } = useAuth();
+  const navigate = useNavigate();
   const [waterData, setWaterData] = useState<WaterData[]>([]);
   const [selectedBuilding, setSelectedBuilding] = useState('Hostel Block A');
   const [selectedTimeframe, setSelectedTimeframe] = useState('7d');
@@ -185,9 +189,18 @@ const Water: React.FC = () => {
     }
   }, [selectedBuilding, selectedTimeframe, generateMockData, generateLeaderboardData]);
 
+  // Redirect admin users to admin water dashboard
   useEffect(() => {
-    fetchWaterData();
-  }, [fetchWaterData]);
+    if (userProfile?.role === 'admin') {
+      navigate('/admin/water');
+    }
+  }, [userProfile, navigate]);
+
+  useEffect(() => {
+    if (userProfile?.role !== 'admin') {
+      fetchWaterData();
+    }
+  }, [fetchWaterData, userProfile]);
 
   // Calculate summary statistics
   const calculateTotalWaterUsage = () => {
@@ -238,6 +251,11 @@ const Water: React.FC = () => {
     const userEntry = leaderboardData.find(entry => entry.name === "Hostel Block A");
     return userEntry ? userEntry.ranking : 0;
   };
+
+  // If user is admin, don't render the student dashboard
+  if (userProfile?.role === 'admin') {
+    return null;
+  }
 
   return (
     <div className="space-y-6 p-6 bg-gray-50 min-h-screen">

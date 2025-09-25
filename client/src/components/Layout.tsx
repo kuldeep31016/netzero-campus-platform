@@ -8,7 +8,7 @@ interface LayoutProps {
 }
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
-  const { user, userProfile } = useAuth();
+  const { userProfile } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -25,7 +25,14 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   ];
 
   const adminNavigation = [
-    { name: 'Admin Panel', href: '/admin', icon: '⚙️' },
+    { name: 'Admin Dashboard', href: '/admin', icon: '⚙️' },
+    { name: 'Energy Management', href: '/admin/energy', icon: '⚡' },
+    { name: 'Water Management', href: '/admin/water', icon: '💧' },
+  ];
+
+  const facultyNavigation = [
+    { name: 'Department Energy', href: '/faculty-energy', icon: '🏢' },
+    { name: 'Department Water', href: '/faculty-water', icon: '💧' },
   ];
 
   const handleLogout = async () => {
@@ -68,8 +75,28 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             </Link>
           ))}
           
+          {/* Faculty section - show only for faculty users */}
+          {userProfile?.role === 'faculty' && (
+            <>
+              <div className="border-t border-gray-200 dark:border-gray-600 my-4"></div>
+              {facultyNavigation.map((item) => (
+                <Link
+                  key={item.name}
+                  to={item.href}
+                  className={`${
+                    isCurrentPage(item.href)
+                      ? 'bg-primary-100 dark:bg-primary-900 text-primary-900 dark:text-primary-100'
+                      : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
+                  } group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors`}
+                >
+                  <span className="mr-3 text-lg">{item.icon}</span>
+                  {item.name}
+                </Link>
+              ))}
+            </>
+          )}
+          
           {/* Admin section - show only for admin users */}
-          {/* TODO: Replace with proper role checking once Firebase is configured */}
           {userProfile?.role === 'admin' && (
             <>
               <div className="border-t border-gray-200 dark:border-gray-600 my-4"></div>

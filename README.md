@@ -1,7 +1,5 @@
 # Net Zero Campus - Sustainability Tracking Platform
 
-A comprehensive web application for campus sustainability tracking with energy efficiency monitoring, carbon neutrality goals, gamification, and AI-powered recommendations.
-
 ## 🌱 Project Overview
 
 Net Zero Campus is a full-stack web application designed to help educational institutions track and achieve their sustainability goals. The platform provides real-time monitoring of energy consumption, water usage, waste management, and mobility patterns while gamifying the sustainability journey through challenges, leaderboards, and achievement systems.
@@ -65,6 +63,42 @@ net-zero-campus/
 - Firebase project setup
 - OpenAI API key (optional)
 
+### Firebase Setup
+
+1. **Create a Firebase Project**
+   - Go to [Firebase Console](https://console.firebase.google.com/)
+   - Click "Add project" and follow the setup wizard
+   - Name your project (e.g., "net-zero-campus")
+
+2. **Enable Authentication**
+   - In the Firebase Console, go to "Authentication" → "Sign-in method"
+   - Enable "Email/Password" provider
+   - Click "Save"
+
+3. **Set up Firestore Database**
+   - Go to "Firestore Database" in the Firebase Console
+   - Click "Create database"
+   - Start in "Test mode" (for development only)
+   - Choose a location and click "Enable"
+
+4. **Register Web App**
+   - Click the settings gear icon (Project settings)
+   - Under "Your apps", click the web icon (</>)
+   - Register your app with a nickname (e.g., "Net Zero Campus")
+   - Copy the Firebase configuration object
+
+5. **Configure Environment Variables**
+   - Update `client/.env` with your Firebase configuration:
+     ```env
+     REACT_APP_FIREBASE_API_KEY=your_api_key
+     REACT_APP_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+     REACT_APP_FIREBASE_PROJECT_ID=your_project_id
+     REACT_APP_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
+     REACT_APP_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
+     REACT_APP_FIREBASE_APP_ID=your_app_id
+     REACT_APP_USE_MOCK_AUTH=false
+     ```
+
 ### Installation
 
 1. **Clone the repository**
@@ -103,6 +137,7 @@ net-zero-campus/
 - [API Documentation](docs/API.md)
 - [Setup Guide](docs/SETUP.md)
 - [Deployment Guide](docs/DEPLOYMENT.md)
+- [Firebase Authentication Setup](FIREBASE_AUTH_SETUP.md)
 
 ## 🌟 Key Features Implementation
 
@@ -111,6 +146,7 @@ net-zero-campus/
 - Role-based access control (Admin, Faculty, Student)
 - Protected routes and API endpoints
 - User profile management
+- Conditional mock/real implementation for development
 
 ### Dashboard Components
 - Real-time metric cards
