@@ -47,7 +47,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <div className={`h-screen flex overflow-hidden ${darkMode ? 'dark' : ''}`}>
       {/* Sidebar */}
-      <div className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 shadow-lg transform lg:translate-x-0 lg:static lg:inset-0 transition duration-200 ease-in-out lg:transition-none`}>
+      <div className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 shadow-lg will-change-transform lg:translate-x-0 lg:static lg:inset-0 transition-transform duration-300 ease-out lg:transition-none`}>
         <div className="flex items-center justify-center h-16 bg-primary-600 text-white">
           <h1 className="text-xl font-bold">Net Zero Campus</h1>
         </div>

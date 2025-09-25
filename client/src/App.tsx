@@ -4,6 +4,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
 import './styles/globals.css';
+import './styles/animations.css';
 
 // Import actual page components
 import Landing from './pages/Landing';

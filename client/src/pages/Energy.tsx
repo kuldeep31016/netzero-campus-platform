@@ -305,7 +305,7 @@ const Energy: React.FC = () => {
               <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
             </div>
 
-            <div className="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <div className="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl will-change-transform transition-transform duration-300 ease-out sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
               <form onSubmit={handleAddReading}>
                 <div className="px-6 pt-6">
                   <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">
