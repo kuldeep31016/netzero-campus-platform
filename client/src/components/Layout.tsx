@@ -28,6 +28,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     { name: 'Admin Dashboard', href: '/admin', icon: '⚙️' },
     { name: 'Energy Management', href: '/admin/energy', icon: '⚡' },
     { name: 'Water Management', href: '/admin/water', icon: '💧' },
+    { name: 'Waste Management', href: '/admin/waste', icon: '🗑️' },
   ];
 
   const facultyNavigation = [
@@ -78,7 +79,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           {/* Faculty section - show only for faculty users */}
           {userProfile?.role === 'faculty' && (
             <>
-              <div className="border-t border-gray-200 dark:border-gray-600 my-4"></div>
+              <div className="border-t border-gray-200 dark:border-gray-600 my-4">
+                <h3 className="px-2 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Faculty Tools
+                </h3>
+              </div>
               {facultyNavigation.map((item) => (
                 <Link
                   key={item.name}
@@ -99,7 +104,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           {/* Admin section - show only for admin users */}
           {userProfile?.role === 'admin' && (
             <>
-              <div className="border-t border-gray-200 dark:border-gray-600 my-4"></div>
+              <div className="border-t border-gray-200 dark:border-gray-600 my-4">
+                <h3 className="px-2 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Admin Tools
+                </h3>
+              </div>
               {adminNavigation.map((item) => (
                 <Link
                   key={item.name}
@@ -147,7 +156,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           <div className="flex-1 px-4 flex justify-between items-center">
             <div className="flex-1 flex items-center">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 capitalize">
-                {location.pathname.slice(1) || 'Dashboard'}
+                {location.pathname.slice(1).replace(/\//g, ' / ') || 'Dashboard'}
               </h2>
             </div>
             

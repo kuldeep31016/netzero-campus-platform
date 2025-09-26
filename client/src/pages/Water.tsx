@@ -192,14 +192,14 @@ const Water: React.FC = () => {
   // Redirect admin users to admin water dashboard
   useEffect(() => {
     if (userProfile?.role === 'admin') {
-      navigate('/admin/water');
+      // Removed redirect so admins can access student dashboard too
+      // navigate('/admin/water');
     }
   }, [userProfile, navigate]);
 
   useEffect(() => {
-    if (userProfile?.role !== 'admin') {
-      fetchWaterData();
-    }
+    // Removed the condition so admins can also see the dashboard
+    fetchWaterData();
   }, [fetchWaterData, userProfile]);
 
   // Calculate summary statistics
@@ -251,11 +251,6 @@ const Water: React.FC = () => {
     const userEntry = leaderboardData.find(entry => entry.name === "Hostel Block A");
     return userEntry ? userEntry.ranking : 0;
   };
-
-  // If user is admin, don't render the student dashboard
-  if (userProfile?.role === 'admin') {
-    return null;
-  }
 
   return (
     <div className="space-y-6 p-6 bg-gray-50 min-h-screen">
