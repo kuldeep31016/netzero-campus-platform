@@ -1,8 +1,10 @@
 import React from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const FacultyDashboard: React.FC = () => {
   const { userProfile } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <div className="p-6">
@@ -58,18 +60,21 @@ const FacultyDashboard: React.FC = () => {
           <p className="text-sm text-purple-600 mt-2">3 new this month</p>
         </div>
 
-        {/* Sustainability Score */}
-        <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-yellow-500">
+        {/* Mobility Card */}
+        <div 
+          className="bg-white rounded-lg shadow-md p-6 border-l-4 border-orange-500 cursor-pointer hover:shadow-lg transition-shadow"
+          onClick={() => navigate('/faculty-mobility')}
+        >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Dept. Score</p>
-              <p className="text-2xl font-bold text-gray-900">92/100</p>
+              <p className="text-sm font-medium text-gray-600">Mobility Dashboard</p>
+              <p className="text-2xl font-bold text-gray-900">Transport</p>
             </div>
-            <div className="p-3 bg-yellow-100 rounded-full">
-              <span className="text-2xl">🏆</span>
+            <div className="p-3 bg-orange-100 rounded-full">
+              <span className="text-2xl">🚗</span>
             </div>
           </div>
-          <p className="text-sm text-yellow-600 mt-2">Rank #2 campus-wide</p>
+          <p className="text-sm text-orange-600 mt-2">View department data</p>
         </div>
       </div>
 
