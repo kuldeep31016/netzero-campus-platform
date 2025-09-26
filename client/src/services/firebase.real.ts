@@ -115,23 +115,42 @@ export const registerUser = async (userData: RegisterData): Promise<UserProfile>
     
     const { uid } = userCredential.user;
     
-    // Save user profile to Firestore
-    const userProfile: UserProfile = {
+    // Create base user profile
+    const baseUserProfile = {
       uid,
       email: userData.email,
       role: userData.role,
       fullName: userData.fullName,
       department: userData.department,
-      studentId: userData.studentId,
-      employeeId: userData.employeeId,
       createdAt: new Date()
     };
     
-    // Save to Firestore
-    await setDoc(doc(db, 'users', uid), {
-      ...userProfile,
+    // Add role-specific fields only if they exist
+    const userProfile: UserProfile = {
+      ...baseUserProfile,
+      ...(userData.studentId && { studentId: userData.studentId }),
+      ...(userData.employeeId && { employeeId: userData.employeeId })
+    };
+    
+    // Save to Firestore (only save defined fields)
+    const firestoreData: any = {
+      uid,
+      email: userData.email,
+      role: userData.role,
+      fullName: userData.fullName,
+      department: userData.department,
       createdAt: new Date()
-    });
+    };
+    
+    // Add role-specific fields only if they exist
+    if (userData.studentId) {
+      firestoreData.studentId = userData.studentId;
+    }
+    if (userData.employeeId) {
+      firestoreData.employeeId = userData.employeeId;
+    }
+    
+    await setDoc(doc(db, 'users', uid), firestoreData);
     
     return userProfile;
   } catch (error: any) {
