@@ -1,24 +1,31 @@
 # Firebase Authentication Setup Guide
 
-## 🚀 Firebase Authentication Implementation Complete!
+## 🚀 Firebase Authentication Implementation
 
-I've successfully implemented comprehensive Firebase authentication for all three user roles (Student, Faculty, Admin) in your Net Zero Campus application.
+I've successfully implemented comprehensive Firebase authentication for all three user roles (Student, Faculty, Admin) in your Net Zero Campus application. The implementation supports both real Firebase authentication and mock authentication for development.
 
 ## ✅ What's Been Implemented
 
 ### 1. **Firebase Service** (`/src/services/firebase.ts`)
-- Complete Firebase v9 SDK integration
+- Conditional implementation that uses real Firebase when `REACT_APP_USE_MOCK_AUTH=false`
+- Mock authentication for development when `REACT_APP_USE_MOCK_AUTH=true`
 - User registration with email/password
 - User login functionality
 - User profile management in Firestore
 - Role-based user data storage
 
-### 2. **Authentication Context** (`/src/contexts/AuthContext.tsx`)
+### 2. **Real Firebase Implementation** (`/src/services/firebase.real.ts`)
+- Complete Firebase v9 SDK integration
+- Firebase Authentication with email/password
+- Firestore for user profile storage
+- Real-time auth state monitoring
+
+### 3. **Authentication Context** (`/src/contexts/AuthContext.tsx`)
 - React Context for global authentication state
 - Automatic user state monitoring
 - Loading states for smooth UX
 
-### 3. **Authentication Modal** (`/src/components/auth/AuthModal.tsx`)
+### 4. **Authentication Modal** (`/src/components/auth/AuthModal.tsx`)
 - Role-specific registration forms
 - Dynamic form fields based on user role:
   - **Students**: Student ID required
@@ -27,12 +34,12 @@ I've successfully implemented comprehensive Firebase authentication for all thre
 - Form validation and error handling
 - Role-based UI theming (green for students, blue for faculty, purple for admin)
 
-### 4. **Protected Routes** (`/src/components/ProtectedRoute.tsx`)
+### 5. **Protected Routes** (`/src/components/ProtectedRoute.tsx`)
 - Authentication verification for dashboard access
 - Automatic redirection to login for unauthenticated users
 - Role-based access control
 
-### 5. **Updated Components**
+### 6. **Updated Components**
 - **Landing Page**: Integrated authentication modal with portal selection
 - **Layout**: Added logout functionality with user profile display
 - **App.tsx**: Proper routing with authentication provider
@@ -55,6 +62,7 @@ REACT_APP_FIREBASE_PROJECT_ID=your_project_id
 REACT_APP_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
 REACT_APP_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
 REACT_APP_FIREBASE_APP_ID=your_app_id
+REACT_APP_USE_MOCK_AUTH=false
 ```
 
 ### Step 3: Firebase Console Setup
@@ -140,13 +148,18 @@ service cloud.firestore {
    npm install firebase
    ```
 
-2. **Start Development Server**:
+2. **Configure Firebase**:
+   - Follow the setup instructions above
+   - Update your `.env` file with Firebase credentials
+   - Set `REACT_APP_USE_MOCK_AUTH=false`
+
+3. **Start Development Server**:
    ```bash
    cd client
    npm start
    ```
 
-3. **Test Authentication**:
+4. **Test Authentication**:
    - Visit http://localhost:3000
    - Click any portal button
    - Register a new user or login
@@ -169,16 +182,19 @@ interface UserProfile {
 }
 ```
 
-## 🎯 Next Steps
+## 🎯 Development vs Production
 
-Your authentication system is fully functional! You can now:
+### Development Mode (Mock Authentication)
+- Set `REACT_APP_USE_MOCK_AUTH=true` in `.env`
+- No Firebase account required
+- Data stored in memory (resets on refresh)
+- Useful for UI development and testing
 
-1. **Set up your Firebase project** with the instructions above
-2. **Test the registration/login flow** 
-3. **Customize the dashboard** based on user roles
-4. **Add more role-specific features** as needed
-
-The authentication system seamlessly integrates with your existing Net Zero Campus platform and provides a secure, role-based access control system for students, faculty, and administrators.
+### Production Mode (Real Firebase)
+- Set `REACT_APP_USE_MOCK_AUTH=false` in `.env`
+- Requires Firebase project setup
+- Data stored in Firestore
+- Full authentication and security features
 
 ## 🛠️ Development Notes
 

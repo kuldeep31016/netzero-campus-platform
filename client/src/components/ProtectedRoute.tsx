@@ -5,7 +5,7 @@ import { UserRole } from '../services/firebase';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  requiredRole?: UserRole;
+  requiredRole?: UserRole | UserRole[];
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRole }) => {
@@ -23,8 +23,19 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRole 
     return <Navigate to="/login" replace />;
   }
 
-  if (requiredRole && userProfile.role !== requiredRole) {
-    return <Navigate to="/dashboard" replace />;
+  // Check if requiredRole is an array or a single role
+  if (requiredRole) {
+    if (Array.isArray(requiredRole)) {
+      // If it's an array, check if user's role is in the array
+      if (!requiredRole.includes(userProfile.role)) {
+        return <Navigate to="/dashboard" replace />;
+      }
+    } else {
+      // If it's a single role, check if it matches user's role
+      if (userProfile.role !== requiredRole) {
+        return <Navigate to="/dashboard" replace />;
+      }
+    }
   }
 
   return <>{children}</>;

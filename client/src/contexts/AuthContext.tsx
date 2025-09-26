@@ -1,9 +1,8 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { User as FirebaseUser, onAuthStateChanged } from 'firebase/auth';
-import { auth, UserProfile, getCurrentUserProfile } from '../services/firebase';
+import { UserProfile, onAuthStateChanged } from '../services/firebase';
 
 interface AuthContextType {
-  user: FirebaseUser | null;
+  user: UserProfile | null;
   userProfile: UserProfile | null;
   loading: boolean;
 }
@@ -23,21 +22,14 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<FirebaseUser | null>(null);
+  const [user, setUser] = useState<UserProfile | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      setUser(firebaseUser);
-      
-      if (firebaseUser) {
-        const profile = await getCurrentUserProfile(firebaseUser);
-        setUserProfile(profile);
-      } else {
-        setUserProfile(null);
-      }
-      
+    const unsubscribe = onAuthStateChanged((userProfile: UserProfile | null) => {
+      setUser(userProfile);
+      setUserProfile(userProfile);
       setLoading(false);
     });
 

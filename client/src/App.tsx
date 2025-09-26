@@ -16,6 +16,9 @@ import Mobility from './pages/Mobility';
 import Gamification from './pages/Gamification';
 import Profile from './pages/Profile';
 import Admin from './pages/Admin';
+import AdminWater from './pages/AdminWater';
+import FacultyStaffEnergy from './pages/FacultyStaffEnergy';
+import FacultyStaffWater from './pages/FacultyStaffWater';
 
 function App() {
   return (
@@ -84,11 +87,44 @@ function App() {
                 </ProtectedRoute>
               } />
               
+              {/* Faculty Routes */}
+              <Route path="/faculty-energy" element={
+                <ProtectedRoute requiredRole="faculty">
+                  <Layout>
+                    <FacultyStaffEnergy />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/faculty-water" element={
+                <ProtectedRoute requiredRole="faculty">
+                  <Layout>
+                    <FacultyStaffWater />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              
               {/* Admin Routes */}
               <Route path="/admin" element={
                 <ProtectedRoute requiredRole="admin">
                   <Layout>
                     <Admin />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/admin/energy" element={
+                <ProtectedRoute requiredRole="admin">
+                  <Layout>
+                    <Admin />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/admin/water" element={
+                <ProtectedRoute requiredRole="admin">
+                  <Layout>
+                    <AdminWater />
                   </Layout>
                 </ProtectedRoute>
               } />

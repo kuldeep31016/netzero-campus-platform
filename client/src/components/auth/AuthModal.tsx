@@ -11,7 +11,7 @@ interface AuthModalProps {
 
 const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, defaultRole = 'student', hideRoleSelection = false }) => {
   const navigate = useNavigate();
-  const [isLogin, setIsLogin] = useState(false); // Start with registration mode
+  const [isLogin, setIsLogin] = useState(true); // Start with login mode
   const [selectedRole, setSelectedRole] = useState<UserRole>(defaultRole);
   const [formData, setFormData] = useState({
     email: '',
@@ -58,7 +58,13 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, defaultRole = 's
           throw new Error('Student ID is required');
         }
         if ((selectedRole === 'faculty' || selectedRole === 'admin') && !formData.employeeId) {
-          throw new Error('Employee ID is required');
+          throw new Error(`${selectedRole === 'faculty' ? 'Employee ID' : 'Admin ID'} is required`);
+        }
+        if (!formData.department) {
+          throw new Error('Department is required');
+        }
+        if (!formData.fullName) {
+          throw new Error('Full name is required');
         }
 
         const registerData: RegisterData = {
@@ -84,7 +90,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, defaultRole = 's
         });
       }
     } catch (err: any) {
-      setError(err.message || 'An error occurred');
+      console.error('Auth error:', err);
+      setError(err.message || 'An error occurred during authentication');
     } finally {
       setLoading(false);
     }
@@ -123,7 +130,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, defaultRole = 's
   const departments = [
     'Computer Science', 'Electrical Engineering', 'Mechanical Engineering',
     'Civil Engineering', 'Environmental Science', 'Business Administration',
-    'Architecture', 'Management', 'Research & Development'
+    'Architecture', 'Management', 'Research & Development', 'Administration'
   ];
 
   return (
@@ -283,7 +290,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, defaultRole = 's
                 htmlFor={selectedRole === 'student' ? 'studentId' : 'employeeId'} 
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
-                {selectedRole === 'student' ? 'Student ID' : 'Employee ID'}
+                {selectedRole === 'student' ? 'Student ID' : selectedRole === 'faculty' ? 'Employee ID' : 'Admin ID'}
               </label>
               <input
                 type="text"
@@ -318,15 +325,18 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, defaultRole = 's
               setIsLogin(!isLogin);
               setError('');
               setRegistrationSuccess(false);
-              setFormData({
-                email: '',
-                password: '',
-                confirmPassword: '',
-                fullName: '',
-                department: '',
-                studentId: '',
-                employeeId: ''
-              });
+              // Only reset form data when switching modes if we're not showing success message
+              if (!registrationSuccess) {
+                setFormData({
+                  email: isLogin ? formData.email : '', // Keep email when switching to register
+                  password: '',
+                  confirmPassword: '',
+                  fullName: '',
+                  department: '',
+                  studentId: '',
+                  employeeId: ''
+                });
+              }
             }}
             className={`text-sm ${roleInfo.textColor} hover:underline`}
           >
