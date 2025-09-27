@@ -1,10 +1,12 @@
 import React from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 const AdminDashboard: React.FC = () => {
   const { userProfile } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   // Function to handle navigation to different dashboards
   const handleNavigation = (path: string) => {
@@ -15,10 +17,10 @@ const AdminDashboard: React.FC = () => {
     <div className="p-6">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          Administrator Dashboard
+          {t('admin.dashboard')}
         </h1>
-        <p className="text-gray-600">Welcome, {userProfile?.fullName}</p>
-        <p className="text-sm text-gray-500">Employee ID: {userProfile?.employeeId} | {userProfile?.department}</p>
+        <p className="text-gray-600">{t('dashboard.welcome')}, {userProfile?.fullName}</p>
+        <p className="text-sm text-gray-500">{t('dashboard.admin_id')}: {userProfile?.employeeId} | {userProfile?.department}</p>
       </div>
 
       {/* Admin-specific dashboard content */}
@@ -27,14 +29,14 @@ const AdminDashboard: React.FC = () => {
         <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-red-500">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Campus Energy</p>
+              <p className="text-sm font-medium text-gray-600">{t('admin.total_energy_consumption')}</p>
               <p className="text-2xl font-bold text-gray-900">25.4 MW</p>
             </div>
             <div className="p-3 bg-red-100 rounded-full">
               <span className="text-2xl">⚡</span>
             </div>
           </div>
-          <p className="text-sm text-red-600 mt-2">↓ 18% from last year</p>
+          <p className="text-sm text-red-600 mt-2">↓ 18% {t('common.days_ago')}</p>
         </div>
 
         {/* Total Users */}
@@ -48,28 +50,28 @@ const AdminDashboard: React.FC = () => {
               <span className="text-2xl">👥</span>
             </div>
           </div>
-          <p className="text-sm text-purple-600 mt-2">↑ 235 this month</p>
+          <p className="text-sm text-purple-600 mt-2">↑ 235 {t('common.days_ago')}</p>
         </div>
 
         {/* Cost Savings */}
         <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-500">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Cost Savings</p>
+              <p className="text-sm font-medium text-gray-600">{t('admin.cost_savings')}</p>
               <p className="text-2xl font-bold text-gray-900">₹2.4M</p>
             </div>
             <div className="p-3 bg-green-100 rounded-full">
               <span className="text-2xl">💰</span>
             </div>
           </div>
-          <p className="text-sm text-green-600 mt-2">↑ 12% this quarter</p>
+          <p className="text-sm text-green-600 mt-2">↑ 12% {t('common.days_ago')}</p>
         </div>
       </div>
 
       {/* Admin Controls */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold mb-4">Resource Management</h2>
+          <h2 className="text-xl font-semibold mb-4">{t('admin.energy_management')}</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <button 
               className="p-4 bg-red-50 hover:bg-red-100 rounded-lg transition-colors text-left"
@@ -78,8 +80,8 @@ const AdminDashboard: React.FC = () => {
               <div className="flex items-center">
                 <span className="text-red-500 mr-3 text-xl">⚡</span>
                 <div>
-                  <p className="font-medium">Energy</p>
-                  <p className="text-sm text-gray-600">Monitor consumption</p>
+                  <p className="font-medium">{t('admin.energy_management')}</p>
+                  <p className="text-sm text-gray-600">{t('admin.total_energy_consumption')}</p>
                 </div>
               </div>
             </button>
@@ -90,8 +92,8 @@ const AdminDashboard: React.FC = () => {
               <div className="flex items-center">
                 <span className="text-blue-500 mr-3 text-xl">💧</span>
                 <div>
-                  <p className="font-medium">Water</p>
-                  <p className="text-sm text-gray-600">Track usage & conservation</p>
+                  <p className="font-medium">{t('admin.water_management')}</p>
+                  <p className="text-sm text-gray-600">{t('admin.total_water_consumption')}</p>
                 </div>
               </div>
             </button>
@@ -102,8 +104,8 @@ const AdminDashboard: React.FC = () => {
               <div className="flex items-center">
                 <span className="text-green-500 mr-3 text-xl">🗑️</span>
                 <div>
-                  <p className="font-medium">Waste</p>
-                  <p className="text-sm text-gray-600">Manage recycling</p>
+                  <p className="font-medium">{t('admin.waste_management')}</p>
+                  <p className="text-sm text-gray-600">{t('admin.total_waste')}</p>
                 </div>
               </div>
             </button>
@@ -111,7 +113,7 @@ const AdminDashboard: React.FC = () => {
         </div>
 
         <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold mb-4">System Management</h2>
+          <h2 className="text-xl font-semibold mb-4">{t('admin.mobility_management')}</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <button className="p-4 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors text-left">
               <div className="flex items-center">
@@ -147,7 +149,7 @@ const AdminDashboard: React.FC = () => {
               <div className="flex items-center">
                 <span className="text-purple-500 mr-3 text-xl">🚗</span>
                 <div>
-                  <p className="font-medium">Mobility</p>
+                  <p className="font-medium">{t('admin.mobility_management')}</p>
                   <p className="text-sm text-gray-600">Transport & emissions</p>
                 </div>
               </div>
@@ -166,7 +168,7 @@ const AdminDashboard: React.FC = () => {
               <div>
                 <p className="font-medium">New Faculty Registration</p>
                 <p className="text-sm text-gray-600">Dr. Sarah Johnson joined Engineering Dept.</p>
-                <p className="text-xs text-gray-500">2 hours ago</p>
+                <p className="text-xs text-gray-500">2 {t('common.hours_ago')}</p>
               </div>
             </div>
           </div>
@@ -176,7 +178,7 @@ const AdminDashboard: React.FC = () => {
               <div>
                 <p className="font-medium">Energy Milestone Achieved</p>
                 <p className="text-sm text-gray-600">Campus reached 25% renewable energy</p>
-                <p className="text-xs text-gray-500">1 day ago</p>
+                <p className="text-xs text-gray-500">1 {t('common.days_ago')}</p>
               </div>
             </div>
           </div>
@@ -186,7 +188,7 @@ const AdminDashboard: React.FC = () => {
               <div>
                 <p className="font-medium">System Alert</p>
                 <p className="text-sm text-gray-600">Database backup completed successfully</p>
-                <p className="text-xs text-gray-500">2 days ago</p>
+                <p className="text-xs text-gray-500">2 {t('common.days_ago')}</p>
               </div>
             </div>
           </div>
