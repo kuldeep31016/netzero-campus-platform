@@ -76,7 +76,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       {!hideNavbar && (
         <div className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 shadow-lg will-change-transform lg:translate-x-0 lg:static lg:inset-0 transition-transform duration-300 ease-out lg:transition-none`}>
           <div className="flex items-center justify-center h-16 bg-primary-600 text-white">
-            <h1 className="text-xl font-bold">Net Zero Campus</h1>
+            <h1 className="text-2xl font-bold">Net Zero Campus</h1>
           </div>
           
           <nav className="mt-5 px-2 space-y-1">
@@ -88,7 +88,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   isCurrentPage(item.href)
                     ? 'bg-primary-100 dark:bg-primary-900 text-primary-900 dark:text-primary-100'
                     : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
-                } group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors`}
+                } group flex items-center px-2 py-2 text-base font-medium rounded-md transition-colors`}
               >
                 <span className="mr-3 text-lg">{item.icon}</span>
                 {item.name}
@@ -99,7 +99,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             {userProfile?.role === 'faculty' && (
               <>
                 <div className="border-t border-gray-200 dark:border-gray-600 my-4">
-                  <h3 className="px-2 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  <h3 className="px-2 py-2 text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Faculty Tools
                   </h3>
                 </div>
@@ -111,7 +111,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                       isCurrentPage(item.href)
                         ? 'bg-primary-100 dark:bg-primary-900 text-primary-900 dark:text-primary-100'
                         : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
-                    } group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors`}
+                    } group flex items-center px-2 py-2 text-base font-medium rounded-md transition-colors`}
                   >
                     <span className="mr-3 text-lg">{item.icon}</span>
                     {item.name}
@@ -124,7 +124,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             {userProfile?.role === 'admin' && (
               <>
                 <div className="border-t border-gray-200 dark:border-gray-600 my-4">
-                  <h3 className="px-2 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  <h3 className="px-2 py-2 text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Admin Tools
                   </h3>
                 </div>
@@ -136,7 +136,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                       isCurrentPage(item.href)
                         ? 'bg-primary-100 dark:bg-primary-900 text-primary-900 dark:text-primary-100'
                         : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
-                    } group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors`}
+                    } group flex items-center px-2 py-2 text-base font-medium rounded-md transition-colors`}
                   >
                     <span className="mr-3 text-lg">{item.icon}</span>
                     {item.name}
@@ -176,7 +176,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             
             <div className="flex-1 px-4 flex justify-between items-center">
               <div className="flex-1 flex items-center">
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 capitalize">
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 capitalize">
                   {location.pathname.slice(1).replace(/\//g, ' / ') || 'Dashboard'}
                 </h2>
               </div>

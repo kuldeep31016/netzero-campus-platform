@@ -97,16 +97,16 @@ const Landing: React.FC = () => {
             </div>
             <div className="hidden md:block">
               <div className="ml-10 flex items-baseline space-x-8">
-                <a href="#pillars" className="text-gray-700 hover:text-green-600 px-3 py-2 text-sm font-medium btn-hover-scale">
+                <a href="#pillars" className="text-gray-700 hover:text-green-600 px-3 py-2 text-base font-medium btn-hover-scale">
                   Pillars
                 </a>
-                <a href="#journey" className="text-gray-700 hover:text-green-600 px-3 py-2 text-sm font-medium btn-hover-scale">
+                <a href="#journey" className="text-gray-700 hover:text-green-600 px-3 py-2 text-base font-medium btn-hover-scale">
                   Journey
                 </a>
-                <a href="#impact" className="text-gray-700 hover:text-green-600 px-3 py-2 text-sm font-medium btn-hover-scale">
+                <a href="#impact" className="text-gray-700 hover:text-green-600 px-3 py-2 text-base font-medium btn-hover-scale">
                   Impact
                 </a>
-                <a href="#community" className="text-gray-700 hover:text-green-600 px-3 py-2 text-sm font-medium btn-hover-scale">
+                <a href="#community" className="text-gray-700 hover:text-green-600 px-3 py-2 text-base font-medium btn-hover-scale">
                   Community
                 </a>
               </div>
