@@ -1,19 +1,21 @@
 import React from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 const FacultyDashboard: React.FC = () => {
   const { userProfile } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   return (
     <div className="p-6">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          Welcome, Prof. {userProfile?.fullName}!
+          {t('dashboard.welcome')}, Prof. {userProfile?.fullName}!
         </h1>
-        <p className="text-gray-600">Faculty Portal - {userProfile?.department}</p>
-        <p className="text-sm text-gray-500">Employee ID: {userProfile?.employeeId}</p>
+        <p className="text-gray-600">{t('dashboard.faculty_portal')} - {userProfile?.department}</p>
+        <p className="text-sm text-gray-500">{t('dashboard.faculty_id')}: {userProfile?.employeeId}</p>
       </div>
 
       {/* Faculty-specific dashboard content */}
@@ -22,14 +24,14 @@ const FacultyDashboard: React.FC = () => {
         <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Dept. Energy Usage</p>
-              <p className="text-2xl font-bold text-gray-900">1,245 kWh</p>
+              <p className="text-sm font-medium text-gray-600">{t('faculty.energy_consumption')}</p>
+              <p className="text-2xl font-bold text-gray-900">1,245 {t('common.kwh_unit')}</p>
             </div>
             <div className="p-3 bg-blue-100 rounded-full">
               <span className="text-2xl">⚡</span>
             </div>
           </div>
-          <p className="text-sm text-blue-600 mt-2">↓ 15% from last month</p>
+          <p className="text-sm text-blue-600 mt-2">↓ 15% {t('common.days_ago')}</p>
         </div>
 
         {/* Student Participation */}
@@ -37,13 +39,13 @@ const FacultyDashboard: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Student Participation</p>
-              <p className="text-2xl font-bold text-gray-900">87%</p>
+              <p className="text-2xl font-bold text-gray-900">87{t('common.percent_unit')}</p>
             </div>
             <div className="p-3 bg-green-100 rounded-full">
               <span className="text-2xl">👥</span>
             </div>
           </div>
-          <p className="text-sm text-green-600 mt-2">↑ 23% this semester</p>
+          <p className="text-sm text-green-600 mt-2">↑ 23% {t('common.days_ago')}</p>
         </div>
 
         {/* Research Projects */}
@@ -57,7 +59,7 @@ const FacultyDashboard: React.FC = () => {
               <span className="text-2xl">🔬</span>
             </div>
           </div>
-          <p className="text-sm text-purple-600 mt-2">3 new this month</p>
+          <p className="text-sm text-purple-600 mt-2">3 new {t('common.days_ago')}</p>
         </div>
 
         {/* Mobility Card */}
@@ -67,7 +69,7 @@ const FacultyDashboard: React.FC = () => {
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Mobility Dashboard</p>
+              <p className="text-sm font-medium text-gray-600">{t('faculty.mobility_impact')}</p>
               <p className="text-2xl font-bold text-gray-900">Transport</p>
             </div>
             <div className="p-3 bg-orange-100 rounded-full">
@@ -122,7 +124,7 @@ const FacultyDashboard: React.FC = () => {
                 <div>
                   <p className="font-medium">Solar Panel Installation Complete</p>
                   <p className="text-sm text-gray-600">Engineering building now 40% solar powered</p>
-                  <p className="text-xs text-gray-500">2 days ago</p>
+                  <p className="text-xs text-gray-500">2 {t('common.days_ago')}</p>
                 </div>
               </div>
             </div>
@@ -132,7 +134,7 @@ const FacultyDashboard: React.FC = () => {
                 <div>
                   <p className="font-medium">New Sustainability Workshop</p>
                   <p className="text-sm text-gray-600">Registration open for faculty training</p>
-                  <p className="text-xs text-gray-500">1 week ago</p>
+                  <p className="text-xs text-gray-500">1 {t('common.weeks_ago')}</p>
                 </div>
               </div>
             </div>

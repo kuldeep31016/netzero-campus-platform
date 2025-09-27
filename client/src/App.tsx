@@ -6,6 +6,9 @@ import Layout from './components/Layout';
 import './styles/globals.css';
 import './styles/animations.css';
 
+// Import i18n
+import './i18n';
+
 // Import actual page components
 import Landing from './pages/Landing';
 import Dashboard from './pages/Dashboard';

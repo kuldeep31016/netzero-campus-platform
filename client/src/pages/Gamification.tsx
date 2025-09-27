@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import StudentQuiz from '../components/dashboards/StudentQuiz';
+import { useTranslation } from 'react-i18next';
 
 // Define types for our gamification features
 interface LeaderboardEntry {
@@ -60,34 +61,35 @@ interface QuizLeaderboardEntry {
 const Gamification: React.FC = () => {
   const { userProfile } = useAuth();
   const [activeTab, setActiveTab] = useState('leaderboards');
+  const { t } = useTranslation();
 
   // Mock data for leaderboards
   const energyLeaderboard: LeaderboardEntry[] = [
-    { id: '1', name: 'Alpha Hostel', value: 245, unit: 'kWh saved', rank: 1 },
-    { id: '2', name: 'Beta Hostel', value: 220, unit: 'kWh saved', rank: 2 },
-    { id: '3', name: 'Gamma Hostel', value: 200, unit: 'kWh saved', rank: 3 },
-    { id: '4', name: 'You', value: 185, unit: 'kWh saved', rank: 4 },
+    { id: '1', name: 'Alpha Hostel', value: 245, unit: t('common.kwh_unit') + ' ' + t('dashboard.kwh_saved'), rank: 1 },
+    { id: '2', name: 'Beta Hostel', value: 220, unit: t('common.kwh_unit') + ' ' + t('dashboard.kwh_saved'), rank: 2 },
+    { id: '3', name: 'Gamma Hostel', value: 200, unit: t('common.kwh_unit') + ' ' + t('dashboard.kwh_saved'), rank: 3 },
+    { id: '4', name: 'You', value: 185, unit: t('common.kwh_unit') + ' ' + t('dashboard.kwh_saved'), rank: 4 },
   ];
 
   const waterLeaderboard: LeaderboardEntry[] = [
-    { id: '1', name: 'Computer Science', value: 1250, unit: 'L saved', rank: 1 },
-    { id: '2', name: 'Mechanical', value: 1100, unit: 'L saved', rank: 2 },
-    { id: '3', name: 'Electrical', value: 980, unit: 'L saved', rank: 3 },
-    { id: '4', name: 'You', value: 850, unit: 'L saved', rank: 5 },
+    { id: '1', name: 'Computer Science', value: 1250, unit: t('common.liters_unit') + ' ' + t('gamification.water_saved'), rank: 1 },
+    { id: '2', name: 'Mechanical', value: 1100, unit: t('common.liters_unit') + ' ' + t('gamification.water_saved'), rank: 2 },
+    { id: '3', name: 'Electrical', value: 980, unit: t('common.liters_unit') + ' ' + t('gamification.water_saved'), rank: 3 },
+    { id: '4', name: 'You', value: 850, unit: t('common.liters_unit') + ' ' + t('gamification.water_saved'), rank: 5 },
   ];
 
   const mobilityLeaderboard: LeaderboardEntry[] = [
-    { id: '1', name: 'Sarah Johnson', value: 15, unit: 'cycling trips', rank: 1 },
-    { id: '2', name: 'Mike Chen', value: 12, unit: 'cycling trips', rank: 2 },
-    { id: '3', name: 'Emma Wilson', value: 10, unit: 'cycling trips', rank: 3 },
-    { id: '4', name: 'You', value: 8, unit: 'cycling trips', rank: 4 },
+    { id: '1', name: 'Sarah Johnson', value: 15, unit: t('common.trips_unit'), rank: 1 },
+    { id: '2', name: 'Mike Chen', value: 12, unit: t('common.trips_unit'), rank: 2 },
+    { id: '3', name: 'Emma Wilson', value: 10, unit: t('common.trips_unit'), rank: 3 },
+    { id: '4', name: 'You', value: 8, unit: t('common.trips_unit'), rank: 4 },
   ];
 
   const wasteLeaderboard: LeaderboardEntry[] = [
-    { id: '1', name: 'Delta Hostel', value: 95, unit: '% segregation', rank: 1 },
-    { id: '2', name: 'Epsilon Hostel', value: 92, unit: '% segregation', rank: 2 },
-    { id: '3', name: 'Zeta Hostel', value: 89, unit: '% segregation', rank: 3 },
-    { id: '4', name: 'You', value: 87, unit: '% segregation', rank: 4 },
+    { id: '1', name: 'Delta Hostel', value: 95, unit: t('common.percent_unit') + ' ' + t('gamification.waste_diverted'), rank: 1 },
+    { id: '2', name: 'Epsilon Hostel', value: 92, unit: t('common.percent_unit') + ' ' + t('gamification.waste_diverted'), rank: 2 },
+    { id: '3', name: 'Zeta Hostel', value: 89, unit: t('common.percent_unit') + ' ' + t('gamification.waste_diverted'), rank: 3 },
+    { id: '4', name: 'You', value: 87, unit: t('common.percent_unit') + ' ' + t('gamification.waste_diverted'), rank: 4 },
   ];
 
   // Mock data for quiz leaderboard
@@ -106,7 +108,7 @@ const Gamification: React.FC = () => {
 
   // Mock data for badges
   const badges: Badge[] = [
-    { id: '1', name: 'Green Champion', description: 'Consistently reduced energy usage', icon: '🌱', color: 'bg-green-100 text-green-800', earned: true },
+    { id: '1', name: t('gamification.badges'), description: t('gamification.earn_points'), icon: '🌱', color: 'bg-green-100 text-green-800', earned: true },
     { id: '2', name: 'Water Saver', description: 'Saved 500L of water this month', icon: '💧', color: 'bg-blue-100 text-blue-800', earned: true },
     { id: '3', name: 'Cycle Hero', description: 'Cycled to campus 10 times', icon: '🚴', color: 'bg-purple-100 text-purple-800', earned: true },
     { id: '4', name: 'Waste Warrior', description: 'Perfect waste segregation for a week', icon: '♻️', color: 'bg-yellow-100 text-yellow-800', earned: false },
@@ -125,10 +127,10 @@ const Gamification: React.FC = () => {
 
   // Mock data for impact widgets
   const impactWidgets: ImpactWidget[] = [
-    { id: '1', title: 'Carbon Saved', description: 'Total CO₂ avoided', icon: '🌍', value: '120kg' },
-    { id: '2', title: 'Water Saved', description: 'Total water conserved', icon: '🚰', value: '1,500L' },
-    { id: '3', title: 'Waste Diverted', description: 'Total waste recycled', icon: '🗑️', value: '85kg' },
-    { id: '4', title: 'Trees Equivalent', description: 'Equivalent to planting', icon: '🌳', value: '12 trees' },
+    { id: '1', title: t('gamification.carbon_saved'), description: 'Total CO₂ avoided', icon: '🌍', value: '120kg' },
+    { id: '2', title: t('gamification.water_saved'), description: 'Total water conserved', icon: '🚰', value: '1,500L' },
+    { id: '3', title: t('gamification.waste_diverted'), description: 'Total waste recycled', icon: '🗑️', value: '85kg' },
+    { id: '4', title: t('gamification.trees_equivalent'), description: 'Equivalent to planting', icon: '🌳', value: '12 trees' },
   ];
 
   // Mock data for achievements
@@ -176,10 +178,10 @@ const Gamification: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-            Gamification Center
+            {t('gamification.center')}
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1">
-            Earn points, compete with peers, and make a real impact
+            {t('gamification.earn_points')}
           </p>
         </div>
         <div className="mt-4 sm:mt-0">
@@ -188,7 +190,7 @@ const Gamification: React.FC = () => {
               <span className="text-xl">⭐</span>
             </div>
             <div>
-              <p className="text-sm text-gray-600">Your Points</p>
+              <p className="text-sm text-gray-600">{t('gamification.your_points')}</p>
               <p className="text-xl font-bold text-gray-900">1,250</p>
             </div>
           </div>
@@ -198,17 +200,17 @@ const Gamification: React.FC = () => {
       {/* Tabs */}
       <div className="border-b border-gray-200">
         <nav className="-mb-px flex space-x-8">
-          {['leaderboards', 'challenges', 'badges', 'achievements', 'quiz'].map((tab) => (
+          {[t('gamification.leaderboards'), t('gamification.challenges'), t('gamification.badges'), t('gamification.achievements'), t('gamification.quiz')].map((tab, index) => (
             <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
+              key={index}
+              onClick={() => setActiveTab(['leaderboards', 'challenges', 'badges', 'achievements', 'quiz'][index])}
               className={`py-4 px-1 text-sm font-medium border-b-2 ${
-                activeTab === tab
+                activeTab === ['leaderboards', 'challenges', 'badges', 'achievements', 'quiz'][index]
                   ? 'border-purple-500 text-purple-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
-              {tab.charAt(0).toUpperCase() + tab.slice(1)}
+              {tab}
             </button>
           ))}
         </nav>
@@ -222,7 +224,7 @@ const Gamification: React.FC = () => {
             {/* Energy Leaderboard */}
             <div className="bg-white rounded-xl shadow-md p-6">
               <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
-                <span className="mr-2">⚡</span> Energy Savers - This Week
+                <span className="mr-2">⚡</span> {t('gamification.energy_savers')}
               </h2>
               <div className="space-y-3">
                 {energyLeaderboard.map(entry => (
@@ -252,7 +254,7 @@ const Gamification: React.FC = () => {
             {/* Water Leaderboard */}
             <div className="bg-white rounded-xl shadow-md p-6">
               <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
-                <span className="mr-2">💧</span> Water Conservation - This Month
+                <span className="mr-2">💧</span> {t('gamification.water_conservation')}
               </h2>
               <div className="space-y-3">
                 {waterLeaderboard.map(entry => (
@@ -282,7 +284,7 @@ const Gamification: React.FC = () => {
             {/* Mobility Leaderboard */}
             <div className="bg-white rounded-xl shadow-md p-6">
               <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
-                <span className="mr-2">🚴</span> Cycling Champions - This Month
+                <span className="mr-2">🚴</span> {t('gamification.cycling_champions')}
               </h2>
               <div className="space-y-3">
                 {mobilityLeaderboard.map(entry => (
@@ -312,7 +314,7 @@ const Gamification: React.FC = () => {
             {/* Waste Leaderboard */}
             <div className="bg-white rounded-xl shadow-md p-6">
               <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
-                <span className="mr-2">♻️</span> Waste Segregation - This Week
+                <span className="mr-2">♻️</span> {t('gamification.waste_segregation')}
               </h2>
               <div className="space-y-3">
                 {wasteLeaderboard.map(entry => (
@@ -342,7 +344,7 @@ const Gamification: React.FC = () => {
             {/* Quiz Leaderboard */}
             <div className="bg-white rounded-xl shadow-md p-6">
               <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
-                <span className="mr-2">🏆</span> Quiz Champions - All Time
+                <span className="mr-2">🏆</span> {t('gamification.quiz_champions')}
               </h2>
               <div className="space-y-3">
                 {quizLeaderboard.map(entry => (
@@ -384,7 +386,7 @@ const Gamification: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2">
               <div className="bg-white rounded-xl shadow-md p-6">
-                <h2 className="text-xl font-bold text-gray-900 mb-4">Active Challenges</h2>
+                <h2 className="text-xl font-bold text-gray-900 mb-4">{t('gamification.active_challenges')}</h2>
                 <div className="space-y-4">
                   {challenges.map(challenge => (
                     <div key={challenge.id} className="border border-gray-200 rounded-lg p-4">
@@ -422,7 +424,7 @@ const Gamification: React.FC = () => {
               {/* Impact Widgets */}
               <div className="bg-white rounded-xl shadow-md p-6">
                 <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
-                  <span className="mr-2">✨</span> Your Impact
+                  <span className="mr-2">✨</span> {t('gamification.your_impact')}
                 </h2>
                 <div className="space-y-4">
                   {impactWidgets.map(widget => (
@@ -442,18 +444,18 @@ const Gamification: React.FC = () => {
 
               {/* Personal Stats */}
               <div className="bg-white rounded-xl shadow-md p-6">
-                <h2 className="text-xl font-bold text-gray-900 mb-4">Your Stats</h2>
+                <h2 className="text-xl font-bold text-gray-900 mb-4">{t('gamification.your_stats')}</h2>
                 <div className="space-y-3">
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Challenges Completed</span>
+                    <span className="text-gray-600">{t('gamification.challenges_completed')}</span>
                     <span className="font-semibold">12</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Current Streak</span>
-                    <span className="font-semibold">7 days</span>
+                    <span className="text-gray-600">{t('gamification.current_streak')}</span>
+                    <span className="font-semibold">7 {t('common.days_ago')}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Badges Earned</span>
+                    <span className="text-gray-600">{t('gamification.badges_earned')}</span>
                     <span className="font-semibold">3/6</span>
                   </div>
                 </div>
@@ -465,7 +467,7 @@ const Gamification: React.FC = () => {
         {/* Badges Tab */}
         {activeTab === 'badges' && (
           <div className="bg-white rounded-xl shadow-md p-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Your Badges</h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-4">{t('gamification.your_badges')}</h2>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
               {badges.map(badge => (
                 <div 
@@ -478,7 +480,7 @@ const Gamification: React.FC = () => {
                   <div className="font-semibold text-sm">{badge.name}</div>
                   <div className="text-xs mt-1 opacity-75">{badge.description}</div>
                   {!badge.earned && (
-                    <div className="mt-2 text-xs text-gray-500">Locked</div>
+                    <div className="mt-2 text-xs text-gray-500">{t('gamification.locked')}</div>
                   )}
                 </div>
               ))}
@@ -489,7 +491,7 @@ const Gamification: React.FC = () => {
         {/* Achievements Tab */}
         {activeTab === 'achievements' && (
           <div className="bg-white rounded-xl shadow-md p-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Your Achievements</h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-4">{t('gamification.your_achievements')}</h2>
             <div className="space-y-4">
               {achievements.map(achievement => (
                 <div key={achievement.id} className="flex items-center p-4 border border-gray-200 rounded-lg">
