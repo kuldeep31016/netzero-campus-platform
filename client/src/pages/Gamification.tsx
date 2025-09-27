@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import StudentQuiz from '../components/dashboards/StudentQuiz';
 
 // Define types for our gamification features
 interface LeaderboardEntry {
@@ -46,6 +47,16 @@ interface Achievement {
   points: number;
 }
 
+// Define type for quiz leaderboard
+interface QuizLeaderboardEntry {
+  id: string;
+  name: string;
+  score: number;
+  quiz: string;
+  date: Date;
+  rank: number;
+}
+
 const Gamification: React.FC = () => {
   const { userProfile } = useAuth();
   const [activeTab, setActiveTab] = useState('leaderboards');
@@ -77,6 +88,20 @@ const Gamification: React.FC = () => {
     { id: '2', name: 'Epsilon Hostel', value: 92, unit: '% segregation', rank: 2 },
     { id: '3', name: 'Zeta Hostel', value: 89, unit: '% segregation', rank: 3 },
     { id: '4', name: 'You', value: 87, unit: '% segregation', rank: 4 },
+  ];
+
+  // Mock data for quiz leaderboard
+  const quizLeaderboard: QuizLeaderboardEntry[] = [
+    { id: '1', name: 'Alex Johnson', score: 95, quiz: 'Energy Conservation Basics', date: new Date('2023-05-15'), rank: 1 },
+    { id: '2', name: 'Taylor Smith', score: 92, quiz: 'Water Conservation Quiz', date: new Date('2023-05-14'), rank: 2 },
+    { id: '3', name: 'Jordan Williams', score: 88, quiz: 'Waste Reduction Challenge', date: new Date('2023-05-13'), rank: 3 },
+    { id: '4', name: 'Casey Brown', score: 85, quiz: 'Sustainable Transportation', date: new Date('2023-05-12'), rank: 4 },
+    { id: '5', name: 'Morgan Davis', score: 82, quiz: 'Advanced Energy Concepts', date: new Date('2023-05-11'), rank: 5 },
+    { id: '6', name: 'Riley Miller', score: 79, quiz: 'Water Quality and Treatment', date: new Date('2023-05-10'), rank: 6 },
+    { id: '7', name: 'Quinn Wilson', score: 76, quiz: 'Circular Economy Principles', date: new Date('2023-05-09'), rank: 7 },
+    { id: '8', name: 'Parker Moore', score: 73, quiz: 'Urban Mobility Solutions', date: new Date('2023-05-08'), rank: 8 },
+    { id: '9', name: 'Drew Taylor', score: 70, quiz: 'Energy Policy and Economics', date: new Date('2023-05-07'), rank: 9 },
+    { id: '10', name: 'Skyler Anderson', score: 68, quiz: 'Water Governance and Management', date: new Date('2023-05-06'), rank: 10 },
   ];
 
   // Mock data for badges
@@ -173,7 +198,7 @@ const Gamification: React.FC = () => {
       {/* Tabs */}
       <div className="border-b border-gray-200">
         <nav className="-mb-px flex space-x-8">
-          {['leaderboards', 'challenges', 'badges', 'achievements'].map((tab) => (
+          {['leaderboards', 'challenges', 'badges', 'achievements', 'quiz'].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -313,6 +338,44 @@ const Gamification: React.FC = () => {
                 ))}
               </div>
             </div>
+
+            {/* Quiz Leaderboard */}
+            <div className="bg-white rounded-xl shadow-md p-6">
+              <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                <span className="mr-2">🏆</span> Quiz Champions - All Time
+              </h2>
+              <div className="space-y-3">
+                {quizLeaderboard.map(entry => (
+                  <div 
+                    key={entry.id} 
+                    className={`flex items-center justify-between p-3 rounded-lg ${
+                      entry.name === userProfile?.fullName 
+                        ? 'bg-purple-50 border border-purple-200' 
+                        : 'bg-gray-50'
+                    }`}
+                  >
+                    <div className="flex items-center">
+                      <span className="mr-3 text-lg">{getRankMedal(entry.rank)}</span>
+                      <span className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold mr-3 ${
+                        getRankBadgeColor(entry.rank)
+                      } border`}>
+                        {entry.rank}
+                      </span>
+                      <div>
+                        <span className="font-medium">{entry.name}</span>
+                        <p className="text-xs text-gray-500 truncate max-w-[120px]">{entry.quiz}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <span className="font-semibold">{entry.score}%</span>
+                      <p className="text-xs text-gray-500">
+                        {entry.date.toLocaleDateString()}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         )}
 
@@ -445,6 +508,13 @@ const Gamification: React.FC = () => {
                 </div>
               ))}
             </div>
+          </div>
+        )}
+
+        {/* Quiz Tab */}
+        {activeTab === 'quiz' && (
+          <div className="bg-white rounded-xl shadow-md p-6">
+            <StudentQuiz />
           </div>
         )}
       </div>
