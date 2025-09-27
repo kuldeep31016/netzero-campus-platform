@@ -182,14 +182,14 @@ const Energy: React.FC = () => {
   // Redirect admin users to admin energy dashboard
   useEffect(() => {
     if (userProfile?.role === 'admin') {
-      navigate('/admin/energy');
+      // Removed redirect so admins can access student dashboard too
+      // navigate('/admin/energy');
     }
   }, [userProfile, navigate]);
 
   useEffect(() => {
-    if (userProfile?.role !== 'admin') {
-      fetchEnergyData();
-    }
+    // Removed the condition so admins can also see the dashboard
+    fetchEnergyData();
   }, [fetchEnergyData, userProfile]);
 
   // Calculate summary statistics
@@ -236,11 +236,6 @@ const Energy: React.FC = () => {
     const userEntry = leaderboardData.find(entry => entry.name === "Engineering");
     return userEntry ? userEntry.ranking : 0;
   };
-
-  // If user is admin, don't render the student dashboard
-  if (userProfile?.role === 'admin') {
-    return null;
-  }
 
   return (
     <div className="space-y-6 p-6 bg-gray-50 min-h-screen">

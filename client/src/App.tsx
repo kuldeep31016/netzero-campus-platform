@@ -17,8 +17,14 @@ import Gamification from './pages/Gamification';
 import Profile from './pages/Profile';
 import Admin from './pages/Admin';
 import AdminWater from './pages/AdminWater';
+import AdminWaste from './pages/AdminWaste';
+import AdminDashboard from './components/dashboards/AdminDashboard';
 import FacultyStaffEnergy from './pages/FacultyStaffEnergy';
 import FacultyStaffWater from './pages/FacultyStaffWater';
+import AdminMobility from './pages/AdminMobility';
+import FacultyStaffWaste from './pages/FacultyStaffWaste';
+import StudentMobility from './pages/StudentMobility';
+import FacultyStaffMobility from './pages/FacultyStaffMobility';
 
 function App() {
   return (
@@ -71,6 +77,14 @@ function App() {
                 </ProtectedRoute>
               } />
               
+              <Route path="/student-mobility" element={
+                <ProtectedRoute requiredRole="student">
+                  <Layout>
+                    <StudentMobility />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              
               <Route path="/gamification" element={
                 <ProtectedRoute>
                   <Layout>
@@ -104,11 +118,27 @@ function App() {
                 </ProtectedRoute>
               } />
               
+              <Route path="/faculty-waste" element={
+                <ProtectedRoute requiredRole="faculty">
+                  <Layout>
+                    <FacultyStaffWaste />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/faculty-mobility" element={
+                <ProtectedRoute requiredRole="faculty">
+                  <Layout>
+                    <FacultyStaffMobility />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              
               {/* Admin Routes */}
               <Route path="/admin" element={
                 <ProtectedRoute requiredRole="admin">
                   <Layout>
-                    <Admin />
+                    <AdminDashboard />
                   </Layout>
                 </ProtectedRoute>
               } />
@@ -125,6 +155,22 @@ function App() {
                 <ProtectedRoute requiredRole="admin">
                   <Layout>
                     <AdminWater />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/admin/waste" element={
+                <ProtectedRoute requiredRole="admin">
+                  <Layout>
+                    <AdminWaste />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/admin/mobility" element={
+                <ProtectedRoute requiredRole="admin">
+                  <Layout>
+                    <AdminMobility />
                   </Layout>
                 </ProtectedRoute>
               } />
