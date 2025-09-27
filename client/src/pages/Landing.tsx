@@ -2,16 +2,22 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import HeroSection from '../components/landing/HeroSection';
 import AuthModal from '../components/auth/AuthModal';
+import InteractiveCampusMap from '../components/InteractiveCampusMap';
 import { UserRole } from '../services/firebase';
 
 const Landing: React.FC = () => {
   const navigate = useNavigate();
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [selectedRole, setSelectedRole] = useState<UserRole>('student');
+  const [selectedBuilding, setSelectedBuilding] = useState<any>(null);
 
   const handlePortalSelect = (portal: 'student' | 'faculty' | 'admin') => {
     setSelectedRole(portal as UserRole);
     setAuthModalOpen(true);
+  };
+
+  const handleBuildingClick = (building: any) => {
+    setSelectedBuilding(building);
   };
 
   return (
@@ -106,6 +112,187 @@ const Landing: React.FC = () => {
                 Engage your community with challenges, leaderboards, and achievement 
                 badges that make sustainability fun and competitive.
               </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Interactive Campus Sustainability Map */}
+      <section id="campus-map" className="py-20 bg-gradient-to-br from-gray-50 to-blue-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+              Interactive Campus Sustainability Map
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Explore real-time sustainability metrics across different campus buildings. 
+              Click on any building to see detailed energy, water, waste, and mobility data.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Interactive Campus Map */}
+            <div className="lg:col-span-2">
+              <div className="bg-white rounded-3xl p-8 shadow-xl">
+                <h3 className="text-2xl font-bold text-gray-900 mb-6">DSCE Campus Layout</h3>
+                <InteractiveCampusMap onBuildingClick={handleBuildingClick} />
+              </div>
+            </div>
+
+            {/* Building Details Panel */}
+            <div className="space-y-6">
+              {/* Currently Selected Building */}
+              <div className="bg-white rounded-3xl p-6 shadow-xl">
+                <h3 className="text-xl font-bold text-gray-900 mb-4">Building Details</h3>
+                {selectedBuilding ? (
+                  <div className="space-y-4">
+                    <div className="text-center pb-4 border-b">
+                      <h4 className="text-lg font-semibold text-gray-900">{selectedBuilding.name}</h4>
+                      <p className="text-sm text-gray-500">Building {selectedBuilding.id}</p>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="text-center p-3 bg-green-50 rounded-lg">
+                        <div className="text-2xl font-bold text-green-600">{selectedBuilding.energy}</div>
+                        <div className="text-xs text-gray-600">kWh/day</div>
+                        <div className="text-xs text-green-600">Energy</div>
+                      </div>
+                      <div className="text-center p-3 bg-blue-50 rounded-lg">
+                        <div className="text-2xl font-bold text-blue-600">{selectedBuilding.water}</div>
+                        <div className="text-xs text-gray-600">Liters/day</div>
+                        <div className="text-xs text-blue-600">Water</div>
+                      </div>
+                      <div className="text-center p-3 bg-purple-50 rounded-lg">
+                        <div className="text-2xl font-bold text-purple-600">{selectedBuilding.waste}</div>
+                        <div className="text-xs text-gray-600">kg/day</div>
+                        <div className="text-xs text-purple-600">Waste</div>
+                      </div>
+                      <div className="text-center p-3 bg-orange-50 rounded-lg">
+                        <div className="text-2xl font-bold text-orange-600">{selectedBuilding.mobility}</div>
+                        <div className="text-xs text-gray-600">users/day</div>
+                        <div className="text-xs text-orange-600">Mobility</div>
+                      </div>
+                    </div>
+                    <div className="pt-4">
+                      <div className="text-sm font-semibold mb-2">Efficiency Score</div>
+                      <div className="bg-gray-200 rounded-full h-2">
+                        <div 
+                          className="bg-gradient-to-r from-green-400 to-blue-500 rounded-full h-2 transition-all duration-500" 
+                          style={{width: `${Math.max(20, 100 - (selectedBuilding.energy / 10))}%`}}
+                        ></div>
+                      </div>
+                      <div className="text-right text-xs text-gray-500 mt-1">
+                        {Math.max(20, 100 - Math.floor(selectedBuilding.energy / 10))}/100
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-gray-500">
+                    <svg className="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H9m0 0H5m0 0h2M7 16h6M7 8h6" />
+                    </svg>
+                    <p>Click on any building in the map to see detailed metrics</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Top Performers */}
+              <div className="bg-white rounded-3xl p-6 shadow-xl">
+                <h3 className="text-xl font-bold text-gray-900 mb-4">🏆 Top Performers</h3>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                    <div>
+                      <div className="font-semibold text-gray-900">Library (B4)</div>
+                      <div className="text-sm text-green-600">Most Energy Efficient</div>
+                    </div>
+                    <div className="text-2xl">🥇</div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                    <div>
+                      <div className="font-semibold text-gray-900">Admin Block (B7)</div>
+                      <div className="text-sm text-blue-600">Best Water Conservation</div>
+                    </div>
+                    <div className="text-2xl">🥈</div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
+                    <div>
+                      <div className="font-semibold text-gray-900">Arts & Science (B1)</div>
+                      <div className="text-sm text-purple-600">Lowest Waste Generation</div>
+                    </div>
+                    <div className="text-2xl">🥉</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Quick Stats */}
+              <div className="bg-white rounded-3xl p-6 shadow-xl">
+                <h3 className="text-xl font-bold text-gray-900 mb-4">📊 Campus Overview</h3>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Total Buildings</span>
+                    <span className="font-bold text-lg">7</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Daily Energy (kWh)</span>
+                    <span className="font-bold text-lg text-green-600">2,847</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Water Usage (L)</span>
+                    <span className="font-bold text-lg text-blue-600">4,126</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Waste Generated (kg)</span>
+                    <span className="font-bold text-lg text-purple-600">156</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Daily Commuters</span>
+                    <span className="font-bold text-lg text-orange-600">3,240</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Sustainability Score */}
+              <div className="bg-gradient-to-r from-green-500 to-blue-500 text-white rounded-3xl p-6 shadow-xl">
+                <h3 className="text-xl font-bold mb-4">🌱 Sustainability Score</h3>
+                <div className="text-center">
+                  <div className="text-4xl font-bold mb-2">87/100</div>
+                  <div className="text-green-100">Excellent Performance!</div>
+                  <div className="mt-4 bg-white/20 rounded-full h-2">
+                    <div className="bg-white rounded-full h-2" style={{width: '87%'}}></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Suggestions Panel */}
+          <div className="mt-12 bg-white rounded-3xl p-8 shadow-xl">
+            <h3 className="text-2xl font-bold text-gray-900 mb-6">💡 AI-Powered Suggestions</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-lg">
+                <div className="flex items-center mb-2">
+                  <span className="text-yellow-600 mr-2">⚡</span>
+                  <h4 className="font-semibold text-gray-900">Energy Optimization</h4>
+                </div>
+                <p className="text-sm text-gray-600">Engineering Block (B3) consumes 30% more energy than average. Consider LED retrofit.</p>
+              </div>
+              
+              <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-lg">
+                <div className="flex items-center mb-2">
+                  <span className="text-blue-600 mr-2">💧</span>
+                  <h4 className="font-semibold text-gray-900">Water Conservation</h4>
+                </div>
+                <p className="text-sm text-gray-600">Install smart water meters in Cafeteria (B5) to reduce consumption by 15%.</p>
+              </div>
+              
+              <div className="bg-green-50 border-l-4 border-green-400 p-4 rounded-lg">
+                <div className="flex items-center mb-2">
+                  <span className="text-green-600 mr-2">♻️</span>
+                  <h4 className="font-semibold text-gray-900">Waste Reduction</h4>
+                </div>
+                <p className="text-sm text-gray-600">Implement composting program in Sports Complex (B6) to reduce waste by 25%.</p>
+              </div>
             </div>
           </div>
         </div>
