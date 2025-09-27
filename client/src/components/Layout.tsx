@@ -18,16 +18,30 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   // Hide navbar on login page
   const hideNavbar = location.pathname === "/login";
 
-  const navigation = [
+  const baseNavigation = [
     { name: 'Dashboard', href: '/dashboard', icon: '📊' },
     { name: 'Energy', href: '/energy', icon: '⚡' },
     { name: 'Water', href: '/water', icon: '💧' },
     { name: 'Waste', href: '/waste', icon: '🗑️' },
     { name: 'Mobility', href: '/mobility', icon: '🚶' },
-    { name: 'Gamification', href: '/gamification', icon: '🎮' },
     { name: 'Profile', href: '/profile', icon: '👤' },
   ];
 
+  const studentNavigation = [
+    { name: 'Gamification', href: '/gamification', icon: '🎮' },
+  ];
+
+  const getNavigationItems = () => {
+    let navigation = [...baseNavigation];
+    
+    if (userProfile?.role === 'student') {
+      navigation.splice(-1, 0, ...studentNavigation);
+    }
+    
+    return navigation;
+  };
+
+  const navigation = getNavigationItems();
   const adminNavigation = [
     { name: 'Admin Dashboard', href: '/admin', icon: '⚙️' },
     { name: 'Energy Management', href: '/admin/energy', icon: '⚡' },
