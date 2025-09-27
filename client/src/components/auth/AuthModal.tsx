@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { registerUser, loginUser, UserRole, RegisterData } from '../../services/firebase';
 
@@ -31,7 +31,33 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, defaultRole = 's
     setSelectedRole(defaultRole);
   }, [defaultRole]);
 
-  if (!isOpen) return null;
+  // Handle escape key to close modal
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    
+    if (isOpen) {
+      window.addEventListener('keydown', handleEsc);
+    }
+    
+    return () => {
+      window.removeEventListener('keydown', handleEsc);
+    };
+  }, [isOpen, onClose]);
+
+  // Prevent background scrolling when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -133,221 +159,240 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, defaultRole = 's
     'Architecture', 'Management', 'Research & Development', 'Administration'
   ];
 
+  // Don't render anything if not open
+  if (!isOpen) return null;
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-optimized flex items-center justify-center z-50 will-change-contents">
-      <div className={`bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full max-h-[90vh] overflow-y-auto ${roleInfo.bgColor} border-2 ${roleInfo.borderColor} will-change-transform animate-fade-in-up`}>
-        <div className="flex justify-between items-center mb-6">
-          <div>
-            <h2 className={`text-2xl font-bold ${roleInfo.textColor}`}>
-              {isLogin ? 'Sign In' : 'Register'} as {selectedRole.charAt(0).toUpperCase() + selectedRole.slice(1)}
-            </h2>
-            {hideRoleSelection && (
-              <p className="text-sm text-gray-600 mt-1">
-                You are accessing the <span className={`font-semibold ${roleInfo.textColor}`}>
-                  {selectedRole.charAt(0).toUpperCase() + selectedRole.slice(1)} Portal
-                </span>
-              </p>
-            )}
-          </div>
+    // Fixed positioning to ensure modal is always visible without scrolling
+    <div className="fixed inset-0 z-50 overflow-y-auto" style={{ zIndex: 1000 }}>
+      {/* Backdrop */}
+      <div 
+        className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm transition-opacity"
+        onClick={onClose}
+      ></div>
+      
+      {/* Modal container - centered vertically and horizontally */}
+      <div className="flex items-center justify-center min-h-screen p-4">
+        {/* Modal content */}
+        <div 
+          className={`bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto relative ${roleInfo.bgColor} border-2 ${roleInfo.borderColor}`}
+          onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside modal
+        >
+          {/* Close button */}
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 text-xl font-bold"
+            className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl font-bold z-10"
           >
             ×
           </button>
-        </div>
-
-        {/* Role Selection - Only show if not hidden */}
-        {!isLogin && !hideRoleSelection && (
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">Select Role</label>
-            <div className="grid grid-cols-3 gap-2">
-              {(['student', 'faculty', 'admin'] as UserRole[]).map((role) => {
-                const info = getRoleInfo(role);
-                return (
-                  <button
-                    key={role}
-                    type="button"
-                    onClick={() => setSelectedRole(role)}
-                    className={`p-2 rounded text-sm font-medium transition-colors ${
-                      selectedRole === role
-                        ? `${info.color} text-white`
-                        : `border ${info.borderColor} ${info.textColor} hover:${info.bgColor}`
-                    }`}
-                  >
-                    {role.charAt(0).toUpperCase() + role.slice(1)}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {error && (
-          <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-            {error}
-          </div>
-        )}
-
-        {registrationSuccess && isLogin && (
-          <div className="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded">
-            🎉 Registration successful! Please sign in with your credentials.
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit}>
-          {/* Full Name (Registration only) */}
-          {!isLogin && (
-            <div className="mb-4">
-              <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-1">
-                Full Name
-              </label>
-              <input
-                type="text"
-                id="fullName"
-                value={formData.fullName}
-                onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                required={!isLogin}
-              />
-            </div>
-          )}
-
-          {/* Email */}
-          <div className="mb-4">
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-              Email
-            </label>
-            <input
-              type="email"
-              id="email"
-              value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-              required
-            />
-          </div>
-
-          {/* Password */}
-          <div className="mb-4">
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-              Password
-            </label>
-            <input
-              type="password"
-              id="password"
-              value={formData.password}
-              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-              required
-              minLength={6}
-            />
-          </div>
-
-          {/* Confirm Password (Registration only) */}
-          {!isLogin && (
-            <div className="mb-4">
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
-                Confirm Password
-              </label>
-              <input
-                type="password"
-                id="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                required={!isLogin}
-                minLength={6}
-              />
-            </div>
-          )}
-
-          {/* Department (Registration only) */}
-          {!isLogin && (
-            <div className="mb-4">
-              <label htmlFor="department" className="block text-sm font-medium text-gray-700 mb-1">
-                Department
-              </label>
-              <select
-                id="department"
-                value={formData.department}
-                onChange={(e) => setFormData({ ...formData, department: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                required={!isLogin}
-              >
-                <option value="">Select Department</option>
-                {departments.map(dept => (
-                  <option key={dept} value={dept}>{dept}</option>
-                ))}
-              </select>
-            </div>
-          )}
-
-          {/* Student/Employee ID (Registration only) */}
-          {!isLogin && (
-            <div className="mb-4">
-              <label 
-                htmlFor={selectedRole === 'student' ? 'studentId' : 'employeeId'} 
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                {selectedRole === 'student' ? 'Student ID' : selectedRole === 'faculty' ? 'Employee ID' : 'Admin ID'}
-              </label>
-              <input
-                type="text"
-                id={selectedRole === 'student' ? 'studentId' : 'employeeId'}
-                value={selectedRole === 'student' ? formData.studentId : formData.employeeId}
-                onChange={(e) => setFormData({ 
-                  ...formData, 
-                  [selectedRole === 'student' ? 'studentId' : 'employeeId']: e.target.value 
-                })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                required={!isLogin}
-              />
-            </div>
-          )}
-
-          {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={loading}
-            className={`w-full py-2 px-4 rounded-md text-white font-medium transition-colors ${
-              loading ? 'bg-gray-400' : `${roleInfo.color} ${roleInfo.hoverColor}`
-            }`}
-          >
-            {loading ? 'Please wait...' : (isLogin ? 'Sign In' : 'Register')}
-          </button>
-        </form>
-
-        {/* Toggle between Login and Register */}
-        <div className="mt-4 text-center">
-          <button
-            onClick={() => {
-              setIsLogin(!isLogin);
-              setError('');
-              setRegistrationSuccess(false);
-              // Only reset form data when switching modes if we're not showing success message
-              if (!registrationSuccess) {
-                setFormData({
-                  email: isLogin ? formData.email : '', // Keep email when switching to register
-                  password: '',
-                  confirmPassword: '',
-                  fullName: '',
-                  department: '',
-                  studentId: '',
-                  employeeId: ''
-                });
-              }
-            }}
-            className={`text-sm ${roleInfo.textColor} hover:underline`}
-          >
-            {isLogin ? "Don't have an account? Register" : "Already have an account? Sign In"}
-          </button>
           
-          {hideRoleSelection && isLogin && (
-            <p className="text-xs text-gray-500 mt-2">
-              Only {selectedRole} accounts can access this portal
-            </p>
-          )}
+          <div className="mt-2">
+            <div>
+              <h2 className={`text-2xl font-bold ${roleInfo.textColor}`}>
+                {isLogin ? 'Sign In' : 'Register'} as {selectedRole.charAt(0).toUpperCase() + selectedRole.slice(1)}
+              </h2>
+              {hideRoleSelection && (
+                <p className="text-sm text-gray-600 mt-1">
+                  You are accessing the <span className={`font-semibold ${roleInfo.textColor}`}>
+                    {selectedRole.charAt(0).toUpperCase() + selectedRole.slice(1)} Portal
+                  </span>
+                </p>
+              )}
+            </div>
+
+            {/* Role Selection - Only show if not hidden */}
+            {!isLogin && !hideRoleSelection && (
+              <div className="my-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Select Role</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {(['student', 'faculty', 'admin'] as UserRole[]).map((role) => {
+                    const info = getRoleInfo(role);
+                    return (
+                      <button
+                        key={role}
+                        type="button"
+                        onClick={() => setSelectedRole(role)}
+                        className={`p-2 rounded text-sm font-medium transition-colors ${
+                          selectedRole === role
+                            ? `${info.color} text-white`
+                            : `border ${info.borderColor} ${info.textColor} hover:${info.bgColor}`
+                        }`}
+                      >
+                        {role.charAt(0).toUpperCase() + role.slice(1)}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {error && (
+              <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+                {error}
+              </div>
+            )}
+
+            {registrationSuccess && isLogin && (
+              <div className="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded">
+                🎉 Registration successful! Please sign in with your credentials.
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit}>
+              {/* Full Name (Registration only) */}
+              {!isLogin && (
+                <div className="mb-4">
+                  <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-1">
+                    Full Name
+                  </label>
+                  <input
+                    type="text"
+                    id="fullName"
+                    value={formData.fullName}
+                    onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                    required={!isLogin}
+                  />
+                </div>
+              )}
+
+              {/* Email */}
+              <div className="mb-4">
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  required
+                />
+              </div>
+
+              {/* Password */}
+              <div className="mb-4">
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+                  Password
+                </label>
+                <input
+                  type="password"
+                  id="password"
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  required
+                  minLength={6}
+                />
+              </div>
+
+              {/* Confirm Password (Registration only) */}
+              {!isLogin && (
+                <div className="mb-4">
+                  <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
+                    Confirm Password
+                  </label>
+                  <input
+                    type="password"
+                    id="confirmPassword"
+                    value={formData.confirmPassword}
+                    onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                    required={!isLogin}
+                    minLength={6}
+                  />
+                </div>
+              )}
+
+              {/* Department (Registration only) */}
+              {!isLogin && (
+                <div className="mb-4">
+                  <label htmlFor="department" className="block text-sm font-medium text-gray-700 mb-1">
+                    Department
+                  </label>
+                  <select
+                    id="department"
+                    value={formData.department}
+                    onChange={(e) => setFormData({ ...formData, department: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                    required={!isLogin}
+                  >
+                    <option value="">Select Department</option>
+                    {departments.map(dept => (
+                      <option key={dept} value={dept}>{dept}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {/* Student/Employee ID (Registration only) */}
+              {!isLogin && (
+                <div className="mb-4">
+                  <label 
+                    htmlFor={selectedRole === 'student' ? 'studentId' : 'employeeId'} 
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    {selectedRole === 'student' ? 'Student ID' : selectedRole === 'faculty' ? 'Employee ID' : 'Admin ID'}
+                  </label>
+                  <input
+                    type="text"
+                    id={selectedRole === 'student' ? 'studentId' : 'employeeId'}
+                    value={selectedRole === 'student' ? formData.studentId : formData.employeeId}
+                    onChange={(e) => setFormData({ 
+                      ...formData, 
+                      [selectedRole === 'student' ? 'studentId' : 'employeeId']: e.target.value 
+                    })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                    required={!isLogin}
+                  />
+                </div>
+              )}
+
+              {/* Submit Button */}
+              <button
+                type="submit"
+                disabled={loading}
+                className={`w-full py-2 px-4 rounded-md text-white font-medium transition-colors ${
+                  loading ? 'bg-gray-400' : `${roleInfo.color} ${roleInfo.hoverColor}`
+                }`}
+              >
+                {loading ? 'Please wait...' : (isLogin ? 'Sign In' : 'Register')}
+              </button>
+            </form>
+
+            {/* Toggle between Login and Register */}
+            <div className="mt-4 text-center">
+              <button
+                onClick={() => {
+                  setIsLogin(!isLogin);
+                  setError('');
+                  setRegistrationSuccess(false);
+                  // Only reset form data when switching modes if we're not showing success message
+                  if (!registrationSuccess) {
+                    setFormData({
+                      email: isLogin ? formData.email : '', // Keep email when switching to register
+                      password: '',
+                      confirmPassword: '',
+                      fullName: '',
+                      department: '',
+                      studentId: '',
+                      employeeId: ''
+                    });
+                  }
+                }}
+                className={`text-sm ${roleInfo.textColor} hover:underline`}
+              >
+                {isLogin ? "Don't have an account? Register" : "Already have an account? Sign In"}
+              </button>
+              
+              {hideRoleSelection && isLogin && (
+                <p className="text-xs text-gray-500 mt-2">
+                  Only {selectedRole} accounts can access this portal
+                </p>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </div>
