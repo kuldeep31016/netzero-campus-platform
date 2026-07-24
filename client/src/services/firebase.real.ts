@@ -48,12 +48,33 @@ const firebaseConfig = {
   appId: process.env.REACT_APP_FIREBASE_APP_ID
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+// Initialize Firebase — guarded so a missing/invalid config (e.g. env vars
+// not set on the deployment) can't crash the whole app at module load time.
+// Callers see a clear error only when they actually try to use auth/db.
+let firebaseApp: ReturnType<typeof initializeApp> | null = null;
+let firebaseAuth: ReturnType<typeof getAuth> | null = null;
+let firebaseDb: ReturnType<typeof getFirestore> | null = null;
 
-// Initialize Firebase services
-export const auth = getAuth(app);
-export const db = getFirestore(app);
+if (firebaseConfig.apiKey) {
+  try {
+    firebaseApp = initializeApp(firebaseConfig);
+    firebaseAuth = getAuth(firebaseApp);
+    firebaseDb = getFirestore(firebaseApp);
+  } catch (err) {
+    console.error(
+      'Firebase failed to initialize — check the REACT_APP_FIREBASE_* environment variables.',
+      err,
+    );
+  }
+} else {
+  console.error(
+    'Firebase config is missing (REACT_APP_FIREBASE_API_KEY not set). ' +
+      'Set the REACT_APP_FIREBASE_* env vars, or set REACT_APP_USE_MOCK_AUTH=true to run without Firebase.',
+  );
+}
+
+export const auth = firebaseAuth as ReturnType<typeof getAuth>;
+export const db = firebaseDb as ReturnType<typeof getFirestore>;
 
 // Auth state listeners
 const authListeners: ((user: UserProfile | null) => void)[] = [];
@@ -98,13 +119,24 @@ const firebaseUserToUserProfile = async (firebaseUser: FirebaseUser | null): Pro
   return null;
 };
 
-// Listen to Firebase auth state changes
-firebaseOnAuthStateChanged(auth, async (firebaseUser) => {
-  const userProfile = await firebaseUserToUserProfile(firebaseUser);
-  notifyAuthListeners(userProfile);
-});
+// Listen to Firebase auth state changes (only when Firebase actually initialized)
+if (auth) {
+  firebaseOnAuthStateChanged(auth, async (firebaseUser) => {
+    const userProfile = await firebaseUserToUserProfile(firebaseUser);
+    notifyAuthListeners(userProfile);
+  });
+}
+
+const requireFirebase = () => {
+  if (!auth || !db) {
+    throw new Error(
+      'Firebase is not configured on this deployment. Set the REACT_APP_FIREBASE_* environment variables, or set REACT_APP_USE_MOCK_AUTH=true to use demo accounts.',
+    );
+  }
+};
 
 export const registerUser = async (userData: RegisterData): Promise<UserProfile> => {
+  requireFirebase();
   try {
     // Create user with email and password
     const userCredential = await createUserWithEmailAndPassword(
@@ -159,6 +191,7 @@ export const registerUser = async (userData: RegisterData): Promise<UserProfile>
 };
 
 export const loginUser = async (email: string, password: string): Promise<UserProfile> => {
+  requireFirebase();
   try {
     // Sign in with email and password
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
@@ -177,6 +210,7 @@ export const loginUser = async (email: string, password: string): Promise<UserPr
 };
 
 export const logoutUser = async (): Promise<void> => {
+  requireFirebase();
   try {
     await signOut(auth);
   } catch (error: any) {
@@ -185,6 +219,6 @@ export const logoutUser = async (): Promise<void> => {
 };
 
 export const getCurrentUserProfile = async (): Promise<UserProfile | null> => {
-  if (!auth.currentUser) return null;
+  if (!auth || !auth.currentUser) return null;
   return firebaseUserToUserProfile(auth.currentUser);
 };

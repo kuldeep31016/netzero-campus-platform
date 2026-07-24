@@ -5,7 +5,9 @@
   "framework": "create-react-app",
   "build": {
     "env": {
-      "CI": "false"
+      "CI": "false",
+      "DISABLE_ESLINT_PLUGIN": "true",
+      "REACT_APP_USE_MOCK_AUTH": "true"
     }
   }
 }
